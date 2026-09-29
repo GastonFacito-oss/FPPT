@@ -1,0 +1,63 @@
+<%- include('../partials/cabecera') %>
+
+<section class="encabezado-pagina">
+  <div class="contenedor contenedor--angosto">
+    <p class="sobretitulo">Ayuda y soporte</p>
+    <h1>¿En qué podemos ayudarte?</h1>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="contenedor contenedor--angosto">
+    <h2>Preguntas frecuentes</h2>
+    <div class="preguntas">
+      <details class="pregunta">
+        <summary>¿Cómo se crea una cuenta?</summary>
+        <p>Entrá a “Ingresar” y elegí “Crear cuenta”. Necesitás tu nombre completo, tu Gmail escolar y tu DNI.
+        Solo se aceptan correos de la escuela.</p>
+      </details>
+      <details class="pregunta">
+        <summary>¿Cómo puedo subir un proyecto?</summary>
+        <p>Con tu cuenta iniciada, andá a “Subir proyecto”, completá los datos (título, descripción, curso,
+        materia, tecnologías e integrantes) y adjuntá un archivo ZIP con todo el proyecto. Podés sumar a tus
+        compañeros como propietarios para que también lo puedan editar.</p>
+      </details>
+      <details class="pregunta">
+        <summary>¿Qué formatos están permitidos?</summary>
+        <p>Cada proyecto se sube como un único archivo <strong>.zip</strong> de hasta <%= zipMaxMb %> MB.
+        Adentro puede tener código, documentación, imágenes y archivos <strong>.jar</strong>.
+        No se aceptan archivos ejecutables peligrosos, como <strong>.exe</strong> o <strong>.bat</strong>.</p>
+      </details>
+      <details class="pregunta">
+        <summary>¿Por qué mi proyecto no aparece publicado?</summary>
+        <p>Todos los proyectos pasan por una revisión. Un docente o el equipo administrador lo aprueba
+        antes de que se vea en el sitio.</p>
+      </details>
+      <details class="pregunta">
+        <summary>¿Cómo descargo un proyecto?</summary>
+        <p>Abrí el proyecto desde la lista, revisá el árbol de carpetas y usá el botón “Descargar ZIP”.
+        No hace falta tener cuenta.</p>
+      </details>
+      <details class="pregunta">
+        <summary>¿Son seguros los archivos?</summary>
+        <p>Los archivos se guardan en el servidor de la escuela y nunca se ejecutan dentro del sitio.
+        Igualmente, revisá siempre lo que descargás antes de abrirlo.</p>
+      </details>
+      <details class="pregunta">
+        <summary>Olvidé mi contraseña, ¿qué hago?</summary>
+        <p>Por ahora, escribile al equipo FPPT desde tu Gmail escolar y te la restablecemos.</p>
+      </details>
+    </div>
+
+    <h2 class="espacio-arriba">¿Todavía nada? Contactanos</h2>
+    <%# Direcciones a confirmar con la escuela %>
+    <div class="grilla-contacto">
+      <div class="contacto"><h3>Estudiantes</h3><p>Correo a confirmar</p></div>
+      <div class="contacto"><h3>Docentes</h3><p>Correo a confirmar</p></div>
+      <div class="contacto"><h3>Equipo directivo</h3><p>Correo a confirmar</p></div>
+      <div class="contacto"><h3>Departamento TICS</h3><p>Correo a confirmar</p></div>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/pie') %>

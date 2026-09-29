@@ -1,0 +1,19 @@
+<%
+  // Portada genérica según la materia (Proyecto 1, 2 o 3)
+  const numero = String(proyecto.materia || '').replace(/\D/g, '') || 'general';
+  const portada = '/img/portadas/proyecto-' + numero + '.svg';
+%>
+<article class="tarjeta">
+  <img class="tarjeta__portada" src="<%= portada %>" alt="" width="400" height="225" loading="lazy">
+  <div class="tarjeta__cuerpo">
+    <p class="tarjeta__meta">
+      <span class="etiqueta"><%= proyecto.materia %></span>
+      <span><%= proyecto.curso %>° <%= proyecto.division %> · <%= proyecto.anio %></span>
+    </p>
+    <h3 class="tarjeta__titulo">
+      <a href="/proyectos/<%= proyecto.id %>"><%= proyecto.titulo %></a>
+    </h3>
+    <p class="tarjeta__descripcion"><%= proyecto.descripcion_corta %></p>
+  </div>
+  <% if (proyecto.destacado) { %><span class="tarjeta__destacado">Destacado</span><% } %>
+</article>
