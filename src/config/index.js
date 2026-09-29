@@ -11,7 +11,13 @@ const config = {
     password: process.env.DB_CLAVE || '',
     database: process.env.DB_NOMBRE || 'fppt',
   },
-  emailDominio: process.env.EMAIL_DOMINIO || 'ejemplo.edu.ar',
+  // Lista de dominios permitidos para registrarse. Vacía = se acepta cualquiera.
+  emailDominios: (process.env.EMAIL_DOMINIO || '')
+    .split(',')
+    .map((d) => d.trim().toLowerCase().replace(/^@/, ''))
+    .filter(Boolean),
+  sesionSecreto: process.env.SESION_SECRETO || 'cambiar-esta-clave-en-el-servidor',
+  produccion: process.env.NODE_ENV === 'production',
   zipMaxMb: Number(process.env.ZIP_MAX_MB) || 250,
 };
 

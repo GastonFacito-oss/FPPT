@@ -37,6 +37,11 @@ npm install
 Copiar el archivo `.env.example` con el nombre `.env`.
 En XAMPP el usuario de MySQL es `root` sin contraseña, así que no hace falta cambiar nada.
 
+- `EMAIL_DOMINIO`: dominio del Gmail escolar (por ejemplo `et20.edu.ar`). Vacío = acepta cualquier email (solo para probar).
+- `SESION_SECRETO`: en el servidor de la escuela, cambiarlo por una frase larga al azar.
+
+> Si ya habías creado la base antes, volvé a ejecutar `npm run db:crear`: se agregó la tabla `sesiones`.
+
 ### 4. Crear la base de datos
 
 1. Abrir el panel de XAMPP y darle **Start** a **MySQL** (Apache no hace falta).
@@ -59,9 +64,20 @@ npm start        # modo normal
 Abrir <http://localhost:3000>.
 En <http://localhost:3000/salud> se ve si el servidor y la base de datos están funcionando.
 
+### Qué se puede probar
+
+| Dirección | Qué hay |
+|---|---|
+| `/` | Inicio con destacados y recientes |
+| `/proyectos/1` y `/proyectos/2` | Detalle del proyecto con árbol de archivos (**demostración**: no descarga) |
+| `/subir` | Formulario para subir un proyecto (**demostración**: no guarda). Hay que iniciar sesión |
+| `/ingresar` y `/registro` | Inicio de sesión y creación de cuenta (funcionan de verdad) |
+| `/sobre-fppt`, `/ayuda` | Información y preguntas frecuentes |
+| `/componentes` | Guía del sistema de diseño |
+
 ### Cuentas de prueba
 
-Todas tienen la contraseña `CambiarEsta2026` (se usan desde el Sprint 2):
+Todas tienen la contraseña `CambiarEsta2026`:
 
 | Rol | Email |
 |---|---|

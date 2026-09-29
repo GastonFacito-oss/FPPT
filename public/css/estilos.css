@@ -391,3 +391,171 @@ code { font-size: .9em; background: var(--celeste); padding: .1em .4em; border-r
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* =========================================================
+   Pantallas del Sprint 2: cuenta, detalle de proyecto y subir
+   ========================================================= */
+
+.oculto { display: none !important; }
+.contenedor--medio { max-width: 920px; }
+.texto-grande { font-size: 1.08rem; }
+
+/* ---------- 17. Cuenta en la cabecera y avisos ---------- */
+.cuenta { display: flex; align-items: center; gap: .75rem; }
+.cuenta form { margin: 0; }
+.cuenta__nombre { font-weight: 700; color: var(--azul-noche); white-space: nowrap; }
+@media (max-width: 900px) {
+  .cuenta { justify-content: space-between; padding: .25rem .8rem 0; }
+}
+
+.avisos { display: grid; gap: .5rem; padding-top: 1.25rem; }
+
+/* ---------- 18. Ingresar y crear cuenta ---------- */
+.seccion--acceso {
+  background: linear-gradient(135deg, var(--celeste) 0%, var(--crema) 100%);
+  padding: 3rem 0 4rem;
+}
+.acceso { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-start; gap: 1.5rem; }
+.acceso__tarjeta {
+  width: 100%; max-width: 460px;
+  background: var(--blanco); border-radius: 20px; box-shadow: var(--sombra-alta);
+  padding: 2.25rem 2rem;
+}
+.acceso__tarjeta .formulario { max-width: none; margin-top: 1.25rem; }
+.acceso__tarjeta .alerta { margin-top: 1rem; }
+.acceso__logo { width: 56px; margin: 0 auto .75rem; }
+.acceso__titulo { text-align: center; font-size: 1.9rem; margin-bottom: .25rem; }
+.acceso__bajada { text-align: center; color: var(--tinta-suave); margin: 0; }
+.acceso__alternativa { text-align: center; margin: 1.25rem 0 .25rem; }
+.acceso__alternativa a { font-weight: 700; }
+.acceso__nota { text-align: center; font-size: .85rem; margin: 0; }
+.acceso__prueba {
+  width: 100%; max-width: 280px;
+  background: var(--blanco); border: 1.5px dashed var(--azul-claro); border-radius: var(--radio);
+  padding: 1rem 1.25rem; font-size: .9rem;
+}
+.acceso__prueba ul { padding-left: 1rem; margin: .25rem 0 .5rem; }
+.acceso__prueba p { margin: 0; }
+@media (max-width: 480px) {
+  .acceso__tarjeta { padding: 1.75rem 1.25rem; }
+  .acceso__prueba { max-width: 460px; }
+}
+.boton--ancho { width: 100%; }
+
+/* ---------- 19. Detalle del proyecto ---------- */
+.detalle-cabecera {
+  background: linear-gradient(135deg, var(--celeste) 0%, var(--crema) 100%);
+  padding: 1.75rem 0 2.5rem;
+}
+.enlace-volver { display: inline-block; font-weight: 700; text-decoration: none; margin-bottom: 1.25rem; }
+.enlace-volver::before { content: '← '; }
+.detalle-cabecera__grilla { display: grid; grid-template-columns: 360px 1fr; gap: 2rem; align-items: center; }
+.detalle-cabecera__portada { width: 100%; border-radius: var(--radio); box-shadow: var(--sombra); }
+.detalle-cabecera__etiquetas { display: flex; flex-wrap: wrap; gap: .4rem; margin-bottom: .75rem; }
+.detalle-cabecera h1 { margin-bottom: .35rem; }
+.detalle-cabecera__resumen { font-size: 1.15rem; color: var(--tinta-suave); margin: 0; }
+.etiqueta--acento { background: var(--naranja); color: var(--tinta); }
+
+.detalle { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 2.5rem; align-items: start; }
+.detalle__principal > h2 { margin-top: 0; }
+.detalle__archivos-encabezado {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+  margin: 2.25rem 0 .75rem;
+}
+.detalle__archivos-encabezado h2 { margin: 0; }
+
+.detalle__ficha {
+  position: sticky; top: 90px;
+  background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio);
+  padding: 1.25rem 1.4rem; box-shadow: var(--sombra);
+}
+.ficha__titulo { font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; color: var(--tinta-suave); margin: 1.25rem 0 .5rem; }
+.ficha__titulo:first-child { margin-top: 0; }
+.ficha { margin: 0; display: grid; gap: .45rem; }
+.ficha div { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--borde); padding-bottom: .45rem; }
+.ficha dt { color: var(--tinta-suave); }
+.ficha dd { margin: 0; font-weight: 700; text-align: right; }
+.ficha__lista { list-style: none; margin: 0; padding: 0; display: grid; gap: .3rem; }
+.ficha__tecnologias { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; }
+
+@media (max-width: 900px) {
+  .detalle-cabecera__grilla { grid-template-columns: 1fr; gap: 1.25rem; }
+  .detalle-cabecera__portada { max-width: 420px; }
+  .detalle { grid-template-columns: 1fr; }
+  .detalle__ficha { position: static; grid-row: 1; }
+}
+
+/* ---------- 20. Archivo ZIP y árbol de carpetas ---------- */
+.archivo-zip {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio);
+  padding: 1rem 1.25rem; margin: 1rem 0 .5rem;
+}
+.archivo-zip__nombre { font-weight: 800; margin: 0; word-break: break-all; }
+.archivo-zip__nombre::before { content: 'ZIP'; font-size: .7rem; font-weight: 800; color: var(--blanco); background: var(--azul); border-radius: 4px; padding: .1rem .35rem; margin-right: .5rem; vertical-align: middle; }
+.archivo-zip__meta { margin: 0; color: var(--tinta-suave); font-size: .9rem; }
+.nota-descarga { font-size: .88rem; margin: 0 0 1rem; }
+.nota-descarga--activa { color: var(--aviso); font-weight: 700; }
+
+.arbol-contenedor {
+  background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--radio);
+  padding: .75rem 1rem; max-height: 520px; overflow: auto;
+  font-family: ui-monospace, 'Cascadia Code', Consolas, monospace; font-size: .9rem;
+}
+.arbol { list-style: none; margin: 0; padding: 0 0 0 1.1rem; border-left: 1px dashed var(--azul-claro); }
+.arbol--raiz { padding-left: 0; border-left: 0; }
+.arbol__item { margin: 0; }
+.arbol__carpeta {
+  cursor: pointer; list-style: none; padding: .3rem .4rem; border-radius: 6px;
+  font-weight: 700; color: var(--azul-noche);
+}
+.arbol__carpeta::-webkit-details-marker { display: none; }
+.arbol__carpeta::before { content: '▸'; display: inline-block; width: 1rem; color: var(--azul); transition: transform .15s; }
+details[open] > .arbol__carpeta::before { transform: rotate(90deg); }
+.arbol__carpeta:hover { background: var(--celeste); }
+.arbol__archivo { display: flex; align-items: center; gap: .6rem; padding: .25rem .4rem .25rem 1.4rem; border-radius: 6px; }
+.arbol__archivo:hover { background: var(--fondo); }
+.arbol__nombre { overflow-wrap: anywhere; }
+.arbol__archivo .arbol__nombre { flex: 1; }
+.arbol__ext {
+  font-family: var(--fuente); font-size: .68rem; font-weight: 800; text-transform: uppercase;
+  color: var(--azul); background: var(--celeste); border-radius: 4px; padding: .05rem .35rem;
+}
+.arbol__ext:empty { display: none; }
+.arbol__tamanio { color: var(--tinta-suave); font-size: .82rem; white-space: nowrap; min-width: 4.5rem; text-align: right; }
+
+/* ---------- 21. Formulario de subir proyecto ---------- */
+.formulario--ancho { max-width: none; margin-top: 1.5rem; }
+.bloque {
+  border: 1px solid var(--borde); border-radius: var(--radio); background: var(--blanco);
+  padding: 1.5rem; margin: 0; display: grid; gap: 1.1rem; min-width: 0;
+}
+.bloque__titulo { font-weight: 800; font-size: 1.15rem; color: var(--azul-noche); padding: 0 .4rem; }
+.grilla-campos { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr)); gap: 1rem; }
+.campo__etiqueta { font-weight: 700; font-size: .95rem; }
+
+.casillas { display: flex; flex-wrap: wrap; gap: .5rem; }
+.casilla {
+  display: inline-flex; align-items: center; gap: .4rem; cursor: pointer;
+  border: 1.5px solid var(--borde); border-radius: 999px; padding: .35rem .85rem; font-weight: 600; font-size: .92rem;
+}
+.casilla:has(input:checked) { border-color: var(--azul); background: var(--celeste); color: var(--azul-noche); }
+.casilla input { accent-color: var(--azul); }
+
+.zona-zip {
+  position: relative; display: grid; gap: .35rem; place-items: center; text-align: center;
+  padding: 2rem 1.25rem; cursor: pointer;
+  background: var(--fondo); border: 2px dashed var(--azul-claro); border-radius: var(--radio);
+  transition: border-color .15s, background-color .15s;
+}
+.zona-zip:hover,
+.zona-zip--activa { border-color: var(--azul); background: var(--celeste); }
+.zona-zip:focus-within { outline: 3px solid var(--naranja); outline-offset: 2px; }
+.campo--error .zona-zip { border-color: var(--error); }
+/* El input ocupa toda la zona (invisible): así se puede hacer clic o soltar el archivo encima */
+.zona-zip__input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.zona-zip__titulo { font-weight: 700; color: var(--azul-noche); }
+.zona-zip__ayuda { color: var(--tinta-suave); font-size: .88rem; }
+
+.progreso--ancho { max-width: none; }
+.progreso__texto { display: flex; justify-content: space-between; margin: 0 0 .4rem; font-size: .95rem; }

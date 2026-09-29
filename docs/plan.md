@@ -71,8 +71,8 @@ Ver `database/schema.sql`.
 | Sprint | Fechas | Objetivo | Estado |
 |---|---|---|---|
 | **1** | 30/9 – 6/10 | Base del proyecto: repositorio, servidor Express, base de datos, sistema de diseño, plantilla común, Inicio, Sobre FPPT y Ayuda | ✅ Base lista |
-| **2** | 7/10 – 13/10 | Registro (Gmail escolar + DNI), login, logout, sesiones y permisos por rol | Pendiente |
-| **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | Pendiente |
+| **2** | 7/10 – 13/10 | Registro (Gmail escolar + DNI), login, logout, sesiones y permisos por rol | ✅ Listo (adelantado). Falta: dominio del Gmail escolar |
+| **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | 🟡 Detalle y formulario hechos como **demostración** (no guardan) |
 | **4** | 21/10 – 27/10 | Subida del ZIP (250 MB) con barra de progreso, árbol de carpetas, reemplazo y descarga | Pendiente |
 | **5** | 28/10 – 3/11 | Panel de admin y docentes (aprobar, destacar, usuarios), búsqueda y filtros, Mis proyectos | Pendiente |
 | **6** | 4/11 – 10/11 | Pruebas con 5 usuarios, correcciones, manual de usuario, instalación en el servidor y backup | Pendiente |
@@ -80,12 +80,21 @@ Ver `database/schema.sql`.
 
 ### Detalle técnico por sprint
 
-**Sprint 2 · Usuarios**
-- Paquetes: `bcryptjs` (encriptar contraseñas), `express-session` + `express-mysql-session` (sesiones guardadas en MySQL).
+**Sprint 2 · Usuarios** ✅
+- Paquetes: `bcryptjs` (encriptar contraseñas) y `express-session`. Las sesiones se guardan en la tabla
+  `sesiones` con un almacén propio (`src/config/sesiones.js`); no se usa `express-mysql-session`
+  porque trae una versión vieja de `mysql2` con vulnerabilidades.
 - Registro: validar que el email termine en `@<dominio escolar>` (variable `EMAIL_DOMINIO` del `.env`), que el DNI tenga 7 u 8 números y que no estén repetidos.
 - Middlewares `requiereLogin` y `requiereRol('docente', 'admin')`.
 - Protección de formularios contra CSRF y límite de intentos de login.
 - KPI: 5/5 funciones probadas (registro, validaciones, usuario repetido, login, credenciales incorrectas).
+
+**Demostraciones ya hechas (se reemplazan en los Sprints 3 y 4)**
+- `/proyectos/1` y `/proyectos/2`: detalle con árbol de archivos de ejemplo (`src/data/demo-archivos.js`).
+  El botón "Descargar ZIP" solo muestra un aviso.
+- `/subir` (requiere sesión): formulario completo. Al elegir un ZIP, el navegador lee su lista de archivos
+  y muestra el árbol real, rechaza `.exe`/`.bat`/etc. y archivos de más de 250 MB. "Guardar proyecto"
+  simula la barra de progreso y no envía nada.
 
 **Sprint 3 · Proyectos**
 - CRUD completo. Solo los propietarios (o el admin) editan y eliminan.

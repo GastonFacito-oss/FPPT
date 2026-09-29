@@ -92,3 +92,11 @@ CREATE TABLE archivos_zip (
   CONSTRAINT fk_zip_proyecto FOREIGN KEY (proyecto_id) REFERENCES proyectos(id) ON DELETE CASCADE,
   CONSTRAINT fk_zip_usuario  FOREIGN KEY (subido_por)  REFERENCES usuarios(id)
 ) ENGINE=InnoDB;
+
+-- Sesiones iniciadas (las maneja src/config/sesiones.js).
+CREATE TABLE sesiones (
+  id       VARCHAR(128) PRIMARY KEY,
+  datos    TEXT NOT NULL,
+  expira   DATETIME NOT NULL,
+  INDEX idx_sesiones_expira (expira)
+) ENGINE=InnoDB;

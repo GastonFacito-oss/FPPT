@@ -37,8 +37,25 @@
             <li><a class="navegacion__enlace" href="<%= e.url %>" <%- rutaActual === e.url ? 'aria-current="page"' : '' %>><%= e.texto %></a></li>
           <% }) %>
         </ul>
-        <a class="boton boton--primario boton--chico" href="/ingresar">Ingresar</a>
+        <% if (usuario) { %>
+          <div class="cuenta">
+            <span class="cuenta__nombre" title="<%= usuario.email %>">Hola, <%= usuario.nombre.split(' ')[0] %></span>
+            <form action="/salir" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="boton boton--secundario boton--chico" type="submit">Salir</button>
+            </form>
+          </div>
+        <% } else { %>
+          <a class="boton boton--primario boton--chico" href="/ingresar">Ingresar</a>
+        <% } %>
       </nav>
     </div>
   </header>
   <main id="contenido">
+  <% if (avisos.length) { %>
+    <div class="contenedor avisos" role="status">
+      <% avisos.forEach(function (aviso) { %>
+        <div class="alerta alerta--<%= aviso.tipo %>"><%= aviso.texto %></div>
+      <% }) %>
+    </div>
+  <% } %>

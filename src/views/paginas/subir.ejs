@@ -1,0 +1,148 @@
+<%- include('../partials/cabecera') %>
+
+<section class="encabezado-pagina">
+  <div class="contenedor contenedor--medio">
+    <p class="sobretitulo">Subir proyecto</p>
+    <h1>Guardá tu proyecto en FPPT</h1>
+    <p class="encabezado-pagina__texto">Completá los datos y adjuntá un ZIP con todos los archivos. Un docente lo revisa antes de publicarlo.</p>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="contenedor contenedor--medio">
+    <div class="alerta alerta--aviso">
+      <strong>Vista de demostración.</strong> Podés completar el formulario y elegir un ZIP para ver cómo funciona,
+      pero todavía no se guarda nada ni se sube ningún archivo.
+    </div>
+
+    <div class="alerta alerta--exito oculto" id="resultado" role="status" tabindex="-1"></div>
+
+    <form class="formulario formulario--ancho" id="form-subir" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+      <fieldset class="bloque">
+        <legend class="bloque__titulo">1. El proyecto</legend>
+        <div class="campo">
+          <label for="titulo">Nombre del proyecto</label>
+          <input id="titulo" name="titulo" type="text" maxlength="150" required>
+        </div>
+        <div class="campo">
+          <label for="descripcion_corta">Descripción corta</label>
+          <input id="descripcion_corta" name="descripcion_corta" type="text" maxlength="200" required aria-describedby="contador-corta">
+          <small class="campo__ayuda" id="contador-corta">Es la que se ve en la tarjeta. <span data-contador>0</span>/200</small>
+        </div>
+        <div class="campo">
+          <label for="descripcion">Descripción completa</label>
+          <textarea id="descripcion" name="descripcion" rows="5" required></textarea>
+          <small class="campo__ayuda">Qué hace, cómo se usa y qué aprendieron haciéndolo.</small>
+        </div>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend class="bloque__titulo">2. Curso y materia</legend>
+        <div class="grilla-campos">
+          <div class="campo">
+            <label for="materia">Materia</label>
+            <select id="materia" name="materia" required>
+              <option value="">Elegí…</option>
+              <option>Proyecto 1</option><option>Proyecto 2</option><option>Proyecto 3</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="curso">Curso</label>
+            <select id="curso" name="curso" required>
+              <option value="">Elegí…</option>
+              <% for (let c = 1; c <= 7; c++) { %><option value="<%= c %>"><%= c %>°</option><% } %>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="division">División</label>
+            <input id="division" name="division" type="text" maxlength="10" placeholder="Ej: 2da" required>
+          </div>
+          <div class="campo">
+            <label for="anio">Año</label>
+            <input id="anio" name="anio" type="number" min="2000" max="<%= anioActual %>" value="<%= anioActual %>" required>
+          </div>
+          <div class="campo">
+            <label for="turno">Turno</label>
+            <select id="turno" name="turno" required>
+              <option value="">Elegí…</option>
+              <option>Mañana</option><option>Tarde</option><option>Vespertino</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="estado">Estado</label>
+            <select id="estado" name="estado" required>
+              <option value="terminado">Terminado</option>
+              <option value="en_curso" selected>En curso</option>
+              <option value="abandonado">Abandonado</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend class="bloque__titulo">3. Equipo y tecnologías</legend>
+        <div class="campo">
+          <label for="integrantes">Integrantes</label>
+          <textarea id="integrantes" name="integrantes" rows="4" placeholder="Un nombre por línea" required></textarea>
+        </div>
+        <div class="campo">
+          <label for="propietarios">Compañeros que también pueden editarlo <span class="texto-suave">(opcional)</span></label>
+          <input id="propietarios" name="propietarios" type="text" placeholder="email1@..., email2@...">
+          <small class="campo__ayuda">Tienen que tener cuenta en FPPT. Separá los emails con comas.</small>
+        </div>
+        <div class="campo">
+          <span class="campo__etiqueta" id="tecnologias-titulo">Tecnologías usadas</span>
+          <div class="casillas" role="group" aria-labelledby="tecnologias-titulo">
+            <% tecnologias.forEach(function (t) { %>
+              <label class="casilla"><input type="checkbox" name="tecnologias" value="<%= t.id %>"> <%= t.nombre %></label>
+            <% }) %>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset class="bloque">
+        <legend class="bloque__titulo">4. Archivos</legend>
+        <div class="campo" id="campo-zip">
+          <span class="campo__etiqueta">Archivo ZIP del proyecto</span>
+          <label class="zona-zip" id="zona-zip" for="zip">
+            <input class="zona-zip__input" id="zip" name="zip" type="file" accept=".zip,application/zip" aria-describedby="zip-ayuda zip-error">
+            <span class="zona-zip__titulo">Arrastrá tu ZIP acá o <u>elegilo desde la computadora</u></span>
+            <span class="zona-zip__ayuda" id="zip-ayuda">Un solo archivo .zip de hasta <%= zipMaxMb %> MB. Puede tener código, documentos, imágenes y .jar.</span>
+          </label>
+          <small class="campo__error oculto" id="zip-error"></small>
+        </div>
+
+        <div class="oculto" id="vista-zip">
+          <div class="archivo-zip">
+            <div class="archivo-zip__datos">
+              <p class="archivo-zip__nombre" id="zip-nombre"></p>
+              <p class="archivo-zip__meta" id="zip-meta"></p>
+            </div>
+            <button class="boton boton--secundario boton--chico" type="button" id="zip-quitar">Quitar</button>
+          </div>
+          <p class="texto-suave">Así se va a ver el contenido de tu ZIP:</p>
+          <div class="arbol-contenedor" id="zip-arbol"></div>
+        </div>
+      </fieldset>
+
+      <div class="oculto" id="progreso-subida">
+        <p class="progreso__texto"><span id="progreso-etiqueta">Subiendo…</span> <strong id="progreso-porcentaje">0%</strong></p>
+        <div class="progreso progreso--ancho" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-labelledby="progreso-etiqueta" id="progreso-barra">
+          <div class="progreso__barra" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="grupo-botones">
+        <button class="boton boton--acento" type="submit" id="boton-guardar">Guardar proyecto</button>
+        <a class="boton boton--secundario" href="/">Cancelar</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<script>window.FPPT_ZIP_MAX_MB = <%= Number(zipMaxMb) %>;</script>
+<script src="/js/subir.js"></script>
+
+<%- include('../partials/pie') %>

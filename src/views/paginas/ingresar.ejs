@@ -1,0 +1,40 @@
+<%- include('../partials/cabecera') %>
+
+<section class="seccion seccion--acceso">
+  <div class="contenedor acceso">
+    <div class="acceso__tarjeta">
+      <img class="acceso__logo" src="/img/icono-fppt.png" alt="" width="64" height="58">
+      <h1 class="acceso__titulo">Ingresar</h1>
+      <p class="acceso__bajada">Iniciá sesión para subir y administrar tus proyectos.</p>
+
+      <% if (error) { %>
+        <div class="alerta alerta--error" role="alert"><%= error %></div>
+      <% } %>
+
+      <form class="formulario" action="/ingresar" method="post" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="volver" value="<%= volver %>">
+        <%- include('../partials/campo', { id: 'email', etiqueta: 'Gmail escolar', tipo: 'email', valor: email, error: null, ayuda: null, atributos: 'autocomplete="email" required autofocus' }) %>
+        <%- include('../partials/campo', { id: 'password', etiqueta: 'Contraseña', tipo: 'password', valor: '', error: null, ayuda: null, atributos: 'autocomplete="current-password" required' }) %>
+        <button class="boton boton--primario boton--ancho" type="submit">Ingresar</button>
+      </form>
+
+      <p class="acceso__alternativa">¿No tenés cuenta? <a href="/registro">Creá una</a></p>
+      <p class="acceso__nota texto-suave">¿Olvidaste tu contraseña? Escribile al equipo FPPT desde tu Gmail escolar.</p>
+    </div>
+
+    <% if (modoPrueba) { %>
+      <aside class="acceso__prueba" aria-label="Cuentas de prueba">
+        <p><strong>Cuentas de prueba</strong> (solo mientras se desarrolla)</p>
+        <ul>
+          <li><code>estudiante@ejemplo.edu.ar</code></li>
+          <li><code>docente@ejemplo.edu.ar</code></li>
+          <li><code>admin@ejemplo.edu.ar</code></li>
+        </ul>
+        <p>Contraseña: <code>CambiarEsta2026</code></p>
+      </aside>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/pie') %>
