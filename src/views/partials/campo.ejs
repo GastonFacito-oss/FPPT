@@ -1,0 +1,16 @@
+<%#
+  Un campo de formulario con su etiqueta, ayuda y mensaje de error.
+  Recibe: id, etiqueta, tipo, valor, error, ayuda, atributos (texto extra para el <input>)
+%>
+<div class="campo<%= error ? ' campo--error' : '' %>">
+  <label for="<%= id %>"><%= etiqueta %></label>
+  <input id="<%= id %>" name="<%= id %>" type="<%= tipo %>" value="<%= valor %>"
+    <%- atributos || '' %>
+    <% if (error || ayuda) { %>aria-describedby="<%= id %>-nota"<% } %>
+    <% if (error) { %>aria-invalid="true"<% } %>>
+  <% if (error) { %>
+    <small class="campo__error" id="<%= id %>-nota"><%= error %></small>
+  <% } else if (ayuda) { %>
+    <small class="campo__ayuda" id="<%= id %>-nota"><%= ayuda %></small>
+  <% } %>
+</div>

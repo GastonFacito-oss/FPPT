@@ -1,0 +1,32 @@
+<%- include('../partials/cabecera') %>
+
+<section class="seccion seccion--acceso">
+  <div class="contenedor acceso">
+    <div class="acceso__tarjeta">
+      <img class="acceso__logo" src="/img/icono-fppt.png" alt="" width="64" height="58">
+      <h1 class="acceso__titulo">Crear cuenta</h1>
+      <p class="acceso__bajada">Con tu cuenta vas a poder subir proyectos y sumar a tus compañeros.</p>
+
+      <% if (Object.keys(errores).length) { %>
+        <div class="alerta alerta--error" role="alert">Revisá los datos marcados en rojo.</div>
+      <% } %>
+
+      <form class="formulario" action="/registro" method="post" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <%- include('../partials/campo', { id: 'nombre', etiqueta: 'Nombre y apellido', tipo: 'text', valor: datos.nombre, error: errores.nombre, ayuda: null, atributos: 'autocomplete="name" maxlength="120" required' }) %>
+        <%- include('../partials/campo', {
+              id: 'email', etiqueta: 'Gmail escolar', tipo: 'email', valor: datos.email, error: errores.email,
+              ayuda: dominios.length ? 'Tiene que terminar en @' + dominios.join(' o @') : 'Usá el correo que te dio la escuela.',
+              atributos: 'autocomplete="email" maxlength="160" required' }) %>
+        <%- include('../partials/campo', { id: 'dni', etiqueta: 'DNI', tipo: 'text', valor: datos.dni, error: errores.dni, ayuda: 'Solo números, sin puntos. No se muestra en el sitio.', atributos: 'inputmode="numeric" autocomplete="off" maxlength="10" required' }) %>
+        <%- include('../partials/campo', { id: 'password', etiqueta: 'Contraseña', tipo: 'password', valor: '', error: errores.password, ayuda: 'Mínimo 8 caracteres, con letras y números.', atributos: 'autocomplete="new-password" maxlength="72" required' }) %>
+        <%- include('../partials/campo', { id: 'password2', etiqueta: 'Repetí la contraseña', tipo: 'password', valor: '', error: errores.password2, ayuda: null, atributos: 'autocomplete="new-password" maxlength="72" required' }) %>
+        <button class="boton boton--primario boton--ancho" type="submit">Crear cuenta</button>
+      </form>
+
+      <p class="acceso__alternativa">¿Ya tenés cuenta? <a href="/ingresar">Ingresá</a></p>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/pie') %>

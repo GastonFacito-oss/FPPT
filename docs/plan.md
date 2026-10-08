@@ -1,0 +1,156 @@
+# Plan de trabajo · FPPT
+
+Entrega final: **miércoles 11 de noviembre de 2026**.
+Metodología: Scrum con **6 sprints de una semana**.
+
+## 1. Decisiones tomadas
+
+| Tema | Decisión |
+|---|---|
+| Acceso | Cualquiera puede **ver** proyectos sin cuenta. Para subir hay que registrarse con el **Gmail escolar**. No hay login por QR ni "olvidé mi contraseña" (la contraseña la restablece el admin). |
+| Registro | Nombre completo, Gmail escolar, DNI y contraseña. El DNI solo lo ve el admin. |
+| Roles | Estudiante, docente y admin. El admin es el equipo FPPT y asigna el rol de docente. |
+| Datos del proyecto | Título, descripción corta, descripción, curso, división, año, turno, materia (Proyecto 1, 2 o 3), tecnologías, integrantes y estado (terminado, en curso o abandonado). |
+| Propietarios | Lo sube un alumno, que puede agregar como propietarios a sus compañeros registrados. |
+| Publicación | **Se publica al instante** y aparece primero en el Inicio (cambio pedido por el equipo el 8/10). Los docentes y el admin lo moderan después desde el panel (Sprint 5). La revisión previa se puede volver a activar guardando los proyectos como `pendiente` en `proyectoModel.crear`. |
+| Archivos | Solo software. Un **ZIP de hasta 250 MB** por proyecto (se aceptan `.jar` adentro). El sitio muestra el árbol de carpetas. Se descarga el ZIP completo. Un ZIP nuevo reemplaza al anterior. |
+| Proyectos viejos | Se pueden cargar proyectos de años anteriores. |
+| Inicio | Mezcla de destacados y recientes. La tarjeta muestra nombre, descripción corta, materia y curso. Al hacer clic se abre el detalle con el árbol de archivos. |
+| Navegación | Solo texto, sin íconos. |
+| Pie de página | Logo de la ET20 y redes sociales (links ficticios por ahora). |
+| Diseño | Azul `#326080` con celeste y crema, estilo moderno. Tipografía Plus Jakarta Sans. Logo FPPT (carpeta con tilde). Sin modo oscuro. |
+| Stack | HTML, CSS y JS + **Node.js con Express** + **PostgreSQL en Supabase** (cambio pedido por el equipo el 8/10, antes era MySQL con XAMPP). La base está en la nube y la comparte todo el equipo; los ZIP quedan en `storage/zips` del servidor. El sitio se instala en un servidor de la red de la escuela. |
+| Fuera de alcance | Perfil de usuario, comentarios, "me gusta", QR, recuperación de contraseña por email, inventario de componentes físicos. |
+
+## 2. Arquitectura: cliente-servidor en 3 capas
+
+```
+Navegador (HTML + CSS + JS)
+        │  pedidos HTTP
+        ▼
+Node.js + Express
+  ├─ routes/        qué se hace en cada dirección
+  ├─ controllers/   lógica de cada pantalla
+  ├─ middlewares/   sesión, permisos, errores
+  └─ models/        consultas SQL
+        │
+        ├──► PostgreSQL en Supabase (nube): usuarios, proyectos, propietarios, integrantes,
+        │    tecnologías, datos del ZIP y sesiones
+        └──► storage/zips: los archivos ZIP (en el disco del servidor, fuera de la carpeta pública)
+```
+
+Es la misma arquitectura del documento (actividad 24), con dos diferencias:
+- La lógica se programa en JavaScript con Node.js en lugar de PHP: el equipo usa **un solo lenguaje**
+  en el navegador y en el servidor.
+- La base de datos es PostgreSQL en Supabase en lugar de MySQL: está en la nube, así que las cuentas y
+  los proyectos son los mismos desde cualquier computadora. Las tablas tienen activado RLS para que
+  la API pública de Supabase no pueda leerlas (solo el servidor de FPPT accede).
+
+## 3. Modelo de datos
+
+Ver `database/schema.sql`.
+
+| Tabla | Para qué sirve |
+|---|---|
+| `usuarios` | nombre, email, dni, contraseña encriptada, rol, activo |
+| `proyectos` | todos los datos del proyecto + estado de revisión y destacado |
+| `proyecto_propietarios` | quiénes pueden editar cada proyecto |
+| `proyecto_integrantes` | nombres de los integrantes (pueden no tener cuenta) |
+| `tecnologias` / `proyecto_tecnologias` | tecnologías usadas por cada proyecto |
+| `archivos_zip` | el ZIP del proyecto y su árbol de carpetas ya leído |
+
+## 4. Pantallas
+
+1. **Inicio**: destacados, recientes y cómo funciona.
+2. **Proyectos**: muro completo con búsqueda y filtros.
+3. **Detalle del proyecto**: datos, integrantes, tecnologías, árbol de archivos y "Descargar ZIP".
+4. **Subir / editar proyecto**: formulario + ZIP con barra de progreso + propietarios.
+5. **Ingresar** y **Crear cuenta**.
+6. **Mis proyectos**: estado de cada proyecto (pendiente, aprobado o rechazado).
+7. **Panel de administración**: aprobar, rechazar, destacar y eliminar proyectos; gestionar usuarios y roles.
+8. **Sobre FPPT** y **Ayuda** (preguntas frecuentes y contacto).
+
+## 5. Cronograma
+
+| Sprint | Fechas | Objetivo | Estado |
+|---|---|---|---|
+| **1** | 30/9 – 6/10 | Base del proyecto: repositorio, servidor Express, base de datos, sistema de diseño, plantilla común, Inicio, Sobre FPPT y Ayuda | ✅ Base lista |
+| **2** | 7/10 – 13/10 | Registro (Gmail escolar + DNI), login, logout, sesiones y permisos por rol | ✅ Listo (adelantado). Falta: dominio del Gmail escolar |
+| **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | 🟡 Alta, muro, lista con páginas, detalle y propietarios ✅ (adelantado). Falta: editar y eliminar |
+| **4** | 21/10 – 27/10 | Subida del ZIP (250 MB) con barra de progreso, árbol de carpetas, reemplazo y descarga | 🟡 Subida, árbol y descarga ✅ (adelantado). Falta: reemplazar el ZIP |
+| **5** | 28/10 – 3/11 | Panel de admin y docentes (aprobar, destacar, usuarios), búsqueda y filtros, Mis proyectos | Pendiente |
+| **6** | 4/11 – 10/11 | Pruebas con 5 usuarios, correcciones, manual de usuario, instalación en el servidor y backup | Pendiente |
+| **Entrega** | **11/11** | Versión `v1.0` | |
+
+### Detalle técnico por sprint
+
+**Sprint 2 · Usuarios** ✅
+- Paquetes: `bcryptjs` (encriptar contraseñas) y `express-session`. Las sesiones se guardan en la tabla
+  `sesiones` con un almacén propio (`src/config/sesiones.js`); no se usa `express-mysql-session`
+  porque trae una versión vieja de `mysql2` con vulnerabilidades.
+- Registro: validar que el email termine en `@<dominio escolar>` (variable `EMAIL_DOMINIO` del `.env`), que el DNI tenga 7 u 8 números y que no estén repetidos.
+- Middlewares `requiereLogin` y `requiereRol('docente', 'admin')`.
+- Protección de formularios contra CSRF y límite de intentos de login.
+- KPI: 5/5 funciones probadas (registro, validaciones, usuario repetido, login, credenciales incorrectas).
+
+**Sprint 3 · Proyectos** (alta ✅, falta editar y eliminar)
+- ✅ `/subir` guarda el proyecto con sus integrantes, tecnologías y propietarios (compañeros con cuenta,
+  buscados por email) en una transacción: o se guarda todo o nada.
+- ✅ Inicio: "Subidos recientemente" (el más nuevo primero, con insignia "Nuevo" durante 7 días) y
+  "Destacados" (los que no entran en recientes). Al terminar de subir, el Inicio salta a la tarjeta nueva.
+- ✅ `/proyectos`: todos los proyectos publicados, de a 12 por página.
+- Falta: editar y eliminar. Solo los propietarios (o el admin) editan y eliminan.
+- `/proyectos/1` y `/proyectos/2` siguen siendo proyectos de ejemplo (`src/data/demo-archivos.js`):
+  su ZIP no existe y el botón de descarga solo muestra un aviso.
+
+**Sprint 4 · Archivos** (subida y descarga ✅, falta reemplazar)
+- ✅ `multer` recibe el ZIP directo a `storage/zips` con un nombre al azar y límite de 250 MB. El token CSRF
+  se revisa **antes** de guardar el archivo. Si algo falla, el archivo se borra.
+- ✅ `yauzl` lee la lista de archivos **sin descomprimir** y se guarda en `arbol_json`. Se rechazan ZIPs con
+  `.exe`, `.bat`, `.cmd`, `.msi`, `.vbs`, `.ps1`, `.scr` o `.com`, rutas con `../`, vacíos o dañados.
+- ✅ Barra de progreso real (`XMLHttpRequest`) y el formulario también funciona sin JavaScript.
+- ✅ Descarga con `res.download()` y el nombre original. No hace falta cuenta. Nunca se ejecuta nada del ZIP.
+- ✅ El servidor espera hasta 30 minutos por subida (conexiones lentas).
+- Falta: reemplazar el ZIP de un proyecto (se reemplaza y listo).
+
+**Sprint 5 · Administración y búsqueda**
+- Moderación para docentes y admin: ocultar, destacar y eliminar proyectos ya publicados
+  (y, si se decide volver a la revisión previa, bandeja de pendientes con motivo de rechazo).
+- Filtros por materia, curso, año, turno, estado y tecnología + buscador por título y descripción.
+
+**Sprint 6 · Cierre**
+- Pruebas de uso con 5 personas externas al equipo (las elige el equipo).
+- Manual de usuario dentro del sitio.
+- Instalación en el servidor de la escuela: Node.js como servicio (`pm2` en Linux o `NSSM` en Windows), conectado a Supabase; backup de la base (Supabase → Database → Backups, o `pg_dump`) y de `storage/zips`.
+- Borrar los datos de prueba y crear la cuenta admin real.
+
+## 6. Roles del equipo
+
+| Integrante | Rol | Tareas principales |
+|---|---|---|
+| Gabriel Vázquez | Product Owner | Prioriza el backlog, acepta cada sprint, contacto con los docentes |
+| Ramiro Miraglia | Project Manager / Scrum Master | Tablero, dailies, planilla de seguimiento, coordina las pruebas |
+| Rolando Quispe | Diseño UX/UI | Wireframes, sistema de diseño, textos, revisión visual de cada pantalla |
+| Lucas | Desarrollo | Backend: base de datos, usuarios, archivos |
+| Thiago Angrisani | Desarrollo | Frontend: vistas, formularios, muro, filtros |
+
+## 7. Riesgos
+
+| Riesgo | Qué hacemos |
+|---|---|
+| El servidor de la escuela no permite instalar Node.js | Confirmarlo en el Sprint 1 con el Departamento TICS. Plan B: usar una PC de la escuela como servidor dentro de la red. |
+| Subir 250 MB por la red de la escuela tarda o se corta | Barra de progreso real, aviso si se corta, 30 minutos de espera por subida. Falta probarlo en la red real de la escuela. |
+| ZIPs con archivos peligrosos | El ZIP no se descomprime ni se ejecuta, se guarda fuera de `public/` y se valida su contenido. |
+| Datos personales (DNI, emails) | Contraseñas encriptadas, DNI visible solo para el admin, `.env` fuera de GitHub. Con Supabase los datos quedan en la nube (São Paulo): RLS activado y la dirección de la base solo la tiene el equipo. |
+| Supabase gratis pausa el proyecto tras una semana sin uso | Entrar a supabase.com y "Restore project". Antes de la muestra y de la entrega, revisar que esté activo. |
+| Alguien borra la base compartida por error | `npm run db:crear` nunca borra; `npm run db:reiniciar` pide escribir BORRAR. |
+| ZIP subidos desde distintas computadoras | Mientras se desarrolla, cada ZIP queda en la PC donde se subió (el sitio lo avisa). En la versión final todo se sube al servidor de la escuela. |
+| Falta de tiempo | Si un sprint se atrasa, lo primero que se recorta son los destacados y los filtros avanzados. |
+
+## 8. Pendientes de confirmar
+
+- [ ] Dominio del Gmail escolar (para validar el registro).
+- [ ] Si cada proyecto lleva foto de portada propia o se usa la portada genérica según la materia (hoy: genérica).
+- [ ] Correos reales de contacto (estudiantes, docentes, directivos, Departamento TICS).
+- [ ] Links reales de las redes sociales.
+- [ ] Apellido de Lucas tal como debe figurar en el sitio.

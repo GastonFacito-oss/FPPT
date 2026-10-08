@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title><%= titulo %> · FPPT</title>
+  <meta name="description" content="FPPT: repositorio de proyectos TIC de la E.T. N°20 Carolina Muzilli.">
+  <link rel="icon" href="/img/icono-fppt.png">
+  <link rel="stylesheet" href="/fuentes/400.css">
+  <link rel="stylesheet" href="/fuentes/500.css">
+  <link rel="stylesheet" href="/fuentes/600.css">
+  <link rel="stylesheet" href="/fuentes/700.css">
+  <link rel="stylesheet" href="/fuentes/800.css">
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <%
+    const enlaces = [
+      { url: '/', texto: 'Inicio' },
+      { url: '/proyectos', texto: 'Proyectos' },
+      { url: '/subir', texto: 'Subir proyecto' },
+      { url: '/sobre-fppt', texto: 'Sobre FPPT' },
+      { url: '/ayuda', texto: 'Ayuda' },
+    ];
+  %>
+  <header class="cabecera">
+    <div class="contenedor cabecera__barra">
+      <a class="marca" href="/" aria-label="FPPT, ir al inicio">
+        <img src="/img/icono-fppt.png" alt="" width="40" height="36">
+        <span class="marca__texto">FPPT</span>
+      </a>
+      <button class="menu-boton" type="button" aria-expanded="false" aria-controls="menu-principal">Menú</button>
+      <nav class="navegacion" id="menu-principal" aria-label="Principal">
+        <ul class="navegacion__lista">
+          <% enlaces.forEach(function (e) { %>
+            <li><a class="navegacion__enlace" href="<%= e.url %>" <%- rutaActual === e.url ? 'aria-current="page"' : '' %>><%= e.texto %></a></li>
+          <% }) %>
+        </ul>
+        <% if (usuario) { %>
+          <div class="cuenta">
+            <span class="cuenta__nombre" title="<%= usuario.email %>">Hola, <%= usuario.nombre.split(' ')[0] %></span>
+            <form action="/salir" method="post">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button class="boton boton--secundario boton--chico" type="submit">Salir</button>
+            </form>
+          </div>
+        <% } else { %>
+          <a class="boton boton--primario boton--chico" href="/ingresar">Ingresar</a>
+        <% } %>
+      </nav>
+    </div>
+  </header>
+  <main id="contenido">
+  <% if (avisos.length) { %>
+    <div class="contenedor avisos" role="status">
+      <% avisos.forEach(function (aviso) { %>
+        <div class="alerta alerta--<%= aviso.tipo %>"><%= aviso.texto %></div>
+      <% }) %>
+    </div>
+  <% } %>

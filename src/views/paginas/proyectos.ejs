@@ -1,0 +1,42 @@
+<%- include('../partials/cabecera') %>
+
+<section class="encabezado-pagina">
+  <div class="contenedor">
+    <p class="sobretitulo">Proyectos</p>
+    <h1>Todos los proyectos</h1>
+    <p class="encabezado-pagina__texto">
+      <%= total %> <%= total === 1 ? 'proyecto publicado' : 'proyectos publicados' %>, del más nuevo al más viejo.
+    </p>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="contenedor">
+    <% if (proyectos.length === 0) { %>
+      <div class="vacio">
+        <p>Todavía no hay proyectos publicados.</p>
+        <a class="boton boton--primario" href="/subir">Subí el primero</a>
+      </div>
+    <% } else { %>
+      <div class="grilla-tarjetas">
+        <% proyectos.forEach(function (proyecto) { %>
+          <%- include('../partials/tarjeta-proyecto', { proyecto }) %>
+        <% }) %>
+      </div>
+
+      <% if (paginas > 1) { %>
+        <nav class="paginacion" aria-label="Páginas">
+          <% if (pagina > 1) { %>
+            <a class="boton boton--secundario boton--chico" href="/proyectos?pagina=<%= pagina - 1 %>">Anteriores</a>
+          <% } %>
+          <span class="paginacion__estado">Página <%= pagina %> de <%= paginas %></span>
+          <% if (pagina < paginas) { %>
+            <a class="boton boton--secundario boton--chico" href="/proyectos?pagina=<%= pagina + 1 %>">Siguientes</a>
+          <% } %>
+        </nav>
+      <% } %>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/pie') %>

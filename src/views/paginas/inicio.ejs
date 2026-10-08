@@ -1,0 +1,85 @@
+<%- include('../partials/cabecera') %>
+
+<section class="portada">
+  <div class="contenedor portada__grilla">
+    <div>
+      <p class="sobretitulo">Repositorio de proyectos TIC · E.T. N°20</p>
+      <h1 class="portada__titulo">Los proyectos de la escuela, guardados para siempre.</h1>
+      <p class="portada__texto">
+        FPPT reúne el software que hacen los estudiantes de la orientación TIC para que no se pierda
+        al terminar el año y sirva de guía a las próximas promociones.
+      </p>
+      <div class="grupo-botones">
+        <a class="boton boton--primario" href="/proyectos">Ver proyectos</a>
+        <a class="boton boton--secundario" href="/subir">Subir mi proyecto</a>
+      </div>
+    </div>
+    <img class="portada__logo" src="/img/logo-fppt.png" alt="Logo de FPPT: una carpeta con un tilde" width="320" height="290">
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="contenedor">
+    <div class="seccion__encabezado">
+      <h2>Subidos recientemente</h2>
+      <a class="enlace-flecha" href="/proyectos">Ver todos</a>
+    </div>
+
+    <% if (!baseDisponible) { %>
+      <div class="alerta alerta--aviso" role="status">
+        No se pudo conectar con la base de datos. Revisá la conexión a internet y la dirección DATABASE_URL del archivo .env.
+      </div>
+    <% } else if (recientes.length === 0) { %>
+      <div class="vacio">
+        <p>Todavía no hay proyectos publicados.</p>
+        <a class="boton boton--primario" href="/subir">Subí el primero</a>
+      </div>
+    <% } else { %>
+      <div class="grilla-tarjetas">
+        <% recientes.forEach(function (proyecto) { %>
+          <%- include('../partials/tarjeta-proyecto', { proyecto }) %>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<% if (destacados.length) { %>
+  <section class="seccion seccion--sin-arriba">
+    <div class="contenedor">
+      <div class="seccion__encabezado">
+        <h2>Destacados</h2>
+      </div>
+      <div class="grilla-tarjetas">
+        <% destacados.forEach(function (proyecto) { %>
+          <%- include('../partials/tarjeta-proyecto', { proyecto }) %>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+<% } %>
+
+<section class="seccion seccion--suave">
+  <div class="contenedor pasos">
+    <h2 class="pasos__titulo">¿Cómo funciona?</h2>
+    <ol class="pasos__lista">
+      <li class="paso">
+        <span class="paso__numero">1</span>
+        <h3>Creá tu cuenta</h3>
+        <p>Con tu Gmail escolar y tu DNI.</p>
+      </li>
+      <li class="paso">
+        <span class="paso__numero">2</span>
+        <h3>Subí tu proyecto</h3>
+        <p>Completá los datos y adjuntá un ZIP con todos los archivos.</p>
+      </li>
+      <li class="paso">
+        <span class="paso__numero">3</span>
+        <h3>Queda guardado</h3>
+        <p>Aparece al instante en el inicio y cualquiera lo puede consultar y descargar.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<%- include('../partials/pie') %>

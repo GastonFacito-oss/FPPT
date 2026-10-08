@@ -1,0 +1,10 @@
+node_modules/
+.env
+storage/zips/*
+!storage/zips/.gitkeep
+*.log
+.DS_Store
+Thumbs.db
+
+# Certificado de Supabase (opcional)
+certificados/

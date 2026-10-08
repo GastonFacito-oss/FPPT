@@ -1,0 +1,130 @@
+<%- include('../partials/cabecera') %>
+<%
+  const estados = {
+    terminado: { texto: 'Terminado', clase: 'etiqueta--exito' },
+    en_curso: { texto: 'En curso', clase: 'etiqueta--aviso' },
+    abandonado: { texto: 'Abandonado', clase: 'etiqueta--gris' },
+  };
+  const estado = estados[proyecto.estado];
+  const numero = String(proyecto.materia).replace(/\D/g, '') || 'general';
+  const tamanio = function (bytes) {
+    if (bytes >= 1048576) return (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
+    if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
+    return bytes + ' B';
+  };
+%>
+
+<section class="detalle-cabecera">
+  <div class="contenedor">
+    <a class="enlace-volver" href="/">Volver al inicio</a>
+    <div class="detalle-cabecera__grilla">
+      <img class="detalle-cabecera__portada" src="/img/portadas/proyecto-<%= numero %>.svg" alt="" width="400" height="225">
+      <div>
+        <p class="detalle-cabecera__etiquetas">
+          <span class="etiqueta"><%= proyecto.materia %></span>
+          <span class="etiqueta <%= estado.clase %>"><%= estado.texto %></span>
+          <% if (proyecto.destacado) { %><span class="etiqueta etiqueta--acento">Destacado</span><% } %>
+        </p>
+        <h1><%= proyecto.titulo %></h1>
+        <p class="detalle-cabecera__resumen"><%= proyecto.descripcion_corta %></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="contenedor detalle">
+    <div class="detalle__principal">
+      <h2>Descripción</h2>
+      <p class="texto-grande"><%= proyecto.descripcion %></p>
+
+      <div class="detalle__archivos-encabezado">
+        <h2>Archivos del proyecto</h2>
+        <% if (archivos) { %>
+          <span class="texto-suave"><%= archivos.cantidad %> archivos</span>
+        <% } %>
+      </div>
+
+      <% if (archivos) { %>
+        <% if (!archivos.real) { %>
+          <div class="alerta alerta--aviso">
+            <strong>Proyecto de ejemplo.</strong> Estos archivos muestran cómo se ve un proyecto;
+            este ZIP no se puede descargar.
+          </div>
+        <% } %>
+
+        <div class="archivo-zip">
+          <div class="archivo-zip__datos">
+            <p class="archivo-zip__nombre"><%= archivos.nombreZip %></p>
+            <p class="archivo-zip__meta"><%= tamanio(archivos.tamanio) %> · Subido el <%= formatearFecha(archivos.subido) %></p>
+          </div>
+          <% if (archivos.real && archivos.disponible) { %>
+            <a class="boton boton--acento" href="/proyectos/<%= proyecto.id %>/descargar" download>Descargar ZIP</a>
+          <% } else if (archivos.real) { %>
+            <button class="boton boton--acento" type="button" disabled aria-describedby="nota-descarga">Descargar ZIP</button>
+          <% } else { %>
+            <button class="boton boton--acento" type="button" data-descarga-demo aria-describedby="nota-descarga">
+              Descargar ZIP
+            </button>
+          <% } %>
+        </div>
+        <% if (!archivos.real) { %>
+          <p class="nota-descarga texto-suave" id="nota-descarga" data-nota-descarga>
+            En los proyectos subidos desde el sitio, este botón descarga el ZIP completo.
+          </p>
+        <% } else if (!archivos.disponible) { %>
+          <p class="nota-descarga nota-descarga--activa" id="nota-descarga">
+            Este ZIP se subió desde otra computadora y no está guardado en esta.
+            Se puede descargar desde la computadora donde se subió.
+          </p>
+        <% } %>
+
+        <div class="arbol-contenedor">
+          <%- include('../partials/arbol', { nodos: archivos.arbol, nivel: 0 }) %>
+        </div>
+      <% } else { %>
+        <div class="vacio">
+          <p>Este proyecto todavía no tiene archivos cargados.</p>
+        </div>
+      <% } %>
+    </div>
+
+    <aside class="detalle__ficha" aria-label="Datos del proyecto">
+      <h2 class="ficha__titulo">Datos</h2>
+      <dl class="ficha">
+        <div><dt>Materia</dt><dd><%= proyecto.materia %></dd></div>
+        <div><dt>Curso</dt><dd><%= proyecto.curso %>° <%= proyecto.division %></dd></div>
+        <div><dt>Año</dt><dd><%= proyecto.anio %></dd></div>
+        <div><dt>Turno</dt><dd><%= proyecto.turno %></dd></div>
+        <div><dt>Estado</dt><dd><%= estado.texto %></dd></div>
+      </dl>
+
+      <h2 class="ficha__titulo">Integrantes</h2>
+      <ul class="ficha__lista">
+        <% proyecto.integrantes.forEach(function (nombre) { %><li><%= nombre %></li><% }) %>
+      </ul>
+
+      <% if (proyecto.tecnologias.length) { %>
+        <h2 class="ficha__titulo">Tecnologías</h2>
+        <p class="ficha__tecnologias">
+          <% proyecto.tecnologias.forEach(function (t) { %><span class="etiqueta etiqueta--gris"><%= t %></span> <% }) %>
+        </p>
+      <% } %>
+    </aside>
+  </div>
+</section>
+
+<script>
+  // Proyectos de ejemplo: el botón de descarga solo muestra un aviso.
+  (function () {
+    var boton = document.querySelector('[data-descarga-demo]');
+    var nota = document.querySelector('[data-nota-descarga]');
+    if (!boton || !nota) return;
+    boton.addEventListener('click', function () {
+      nota.textContent = 'Este es un proyecto de ejemplo: su ZIP no existe. Probá con un proyecto subido desde "Subir proyecto".';
+      nota.classList.add('nota-descarga--activa');
+    });
+  })();
+</script>
+
+<%- include('../partials/pie') %>
