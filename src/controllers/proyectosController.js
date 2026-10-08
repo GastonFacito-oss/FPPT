@@ -1,4 +1,5 @@
 // Proyectos: lista, detalle, subida y descarga.
+const fs = require('fs');
 const path = require('path');
 const proyectoModel = require('../models/proyectoModel');
 const usuarioModel = require('../models/usuarioModel');
@@ -29,9 +30,11 @@ async function detalle(req, res, next) {
 
   let archivos = null;
   if (proyecto.zip) {
-    // ZIP real, subido desde el sitio
+    // ZIP real, subido desde el sitio. Puede no estar en esta computadora
+    // si se subió desde otra (la base es compartida, los archivos no).
     archivos = {
       real: true,
+      disponible: await existeArchivo(rutaDelZip(proyecto.zip)),
       nombreZip: proyecto.zip.nombre_original,
       tamanio: Number(proyecto.zip.tamanio),
       subido: proyecto.zip.subido,
@@ -55,11 +58,26 @@ async function descargar(req, res, next) {
   const zip = await proyectoModel.obtenerZip(id);
   if (!zip) return next();
 
-  // path.basename: aunque la base tuviera algo raro, nunca sale de la carpeta de ZIPs
-  const ruta = path.join(config.carpetaZips, path.basename(zip.ruta));
+  const ruta = rutaDelZip(zip);
+  if (!(await existeArchivo(ruta))) {
+    return res.status(404).render('paginas/error', {
+      titulo: 'ZIP no disponible',
+      codigo: 404,
+      mensaje: 'Este ZIP se subió desde otra computadora y no está guardado en esta. Se puede descargar desde la computadora donde se subió.',
+    });
+  }
   res.download(ruta, zip.nombre_original, (err) => {
-    if (err && !res.headersSent) next(); // el archivo no está en el disco -> 404
+    if (err && !res.headersSent) next(err);
   });
+}
+
+// path.basename: aunque la base tuviera algo raro, nunca sale de la carpeta de ZIPs
+function rutaDelZip(zip) {
+  return path.join(config.carpetaZips, path.basename(zip.ruta));
+}
+
+async function existeArchivo(ruta) {
+  return fs.promises.access(ruta).then(() => true, () => false);
 }
 
 async function mostrarSubir(req, res) {

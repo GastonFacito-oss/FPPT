@@ -102,7 +102,7 @@ async function registrar(req, res) {
     id = await usuarioModel.crear({ ...datos, passwordHash });
   } catch (err) {
     // Por si dos personas se registran con el mismo dato al mismo tiempo
-    if (err.code === 'ER_DUP_ENTRY') {
+    if (err.code === '23505') { // 23505 = dato repetido en PostgreSQL
       errores.email = 'Ese email o DNI ya está registrado.';
       return volverAMostrar();
     }

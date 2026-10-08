@@ -4,12 +4,12 @@
 const crypto = require('crypto');
 const session = require('express-session');
 const config = require('../config');
-const AlmacenMySQL = require('../config/sesiones');
+const AlmacenEnBase = require('../config/sesiones');
 
 const sesion = session({
   name: 'fppt.sid',
   secret: config.sesionSecreto,
-  store: new AlmacenMySQL(),
+  store: new AlmacenEnBase(),
   resave: false,
   saveUninitialized: false,
   cookie: {

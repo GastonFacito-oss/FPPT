@@ -21,6 +21,16 @@ app.use('/fuentes', express.static(path.join(__dirname, '..', 'node_modules', '@
 // Para leer los datos de los formularios
 app.use(express.urlencoded({ extended: false, limit: '100kb' }));
 
+// Fechas en formato argentino (dd/mm/aaaa) y con la hora de Argentina,
+// aunque la base de Supabase guarde todo en hora universal
+const formatoFecha = new Intl.DateTimeFormat('es-AR', {
+  timeZone: 'America/Argentina/Buenos_Aires',
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+});
+app.locals.formatearFecha = (valor) => formatoFecha.format(new Date(valor));
+
 // Datos disponibles en todas las vistas (van antes de todo, así también las páginas de error los tienen)
 app.use((req, res, next) => {
   res.locals.rutaActual = req.path;

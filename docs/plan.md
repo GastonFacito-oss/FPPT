@@ -19,7 +19,7 @@ Metodología: Scrum con **6 sprints de una semana**.
 | Navegación | Solo texto, sin íconos. |
 | Pie de página | Logo de la ET20 y redes sociales (links ficticios por ahora). |
 | Diseño | Azul `#326080` con celeste y crema, estilo moderno. Tipografía Plus Jakarta Sans. Logo FPPT (carpeta con tilde). Sin modo oscuro. |
-| Stack | HTML, CSS y JS + **Node.js con Express** + **MySQL** (XAMPP). Se instala en un servidor de la red de la escuela. |
+| Stack | HTML, CSS y JS + **Node.js con Express** + **PostgreSQL en Supabase** (cambio pedido por el equipo el 8/10, antes era MySQL con XAMPP). La base está en la nube y la comparte todo el equipo; los ZIP quedan en `storage/zips` del servidor. El sitio se instala en un servidor de la red de la escuela. |
 | Fuera de alcance | Perfil de usuario, comentarios, "me gusta", QR, recuperación de contraseña por email, inventario de componentes físicos. |
 
 ## 2. Arquitectura: cliente-servidor en 3 capas
@@ -34,13 +34,17 @@ Node.js + Express
   ├─ middlewares/   sesión, permisos, errores
   └─ models/        consultas SQL
         │
-        ├──► MySQL: usuarios, proyectos, propietarios, integrantes, tecnologías, datos del ZIP
-        └──► storage/zips: los archivos ZIP (fuera de la carpeta pública)
+        ├──► PostgreSQL en Supabase (nube): usuarios, proyectos, propietarios, integrantes,
+        │    tecnologías, datos del ZIP y sesiones
+        └──► storage/zips: los archivos ZIP (en el disco del servidor, fuera de la carpeta pública)
 ```
 
-Es la misma arquitectura del documento (actividad 24). La única diferencia es que la lógica
-se programa en JavaScript con Node.js en lugar de PHP: el equipo usa **un solo lenguaje**
-en el navegador y en el servidor.
+Es la misma arquitectura del documento (actividad 24), con dos diferencias:
+- La lógica se programa en JavaScript con Node.js en lugar de PHP: el equipo usa **un solo lenguaje**
+  en el navegador y en el servidor.
+- La base de datos es PostgreSQL en Supabase en lugar de MySQL: está en la nube, así que las cuentas y
+  los proyectos son los mismos desde cualquier computadora. Las tablas tienen activado RLS para que
+  la API pública de Supabase no pueda leerlas (solo el servidor de FPPT accede).
 
 ## 3. Modelo de datos
 
@@ -117,7 +121,7 @@ Ver `database/schema.sql`.
 **Sprint 6 · Cierre**
 - Pruebas de uso con 5 personas externas al equipo (las elige el equipo).
 - Manual de usuario dentro del sitio.
-- Instalación en el servidor de la escuela: Node.js como servicio (`pm2` en Linux o `NSSM` en Windows), MySQL de XAMPP, backup de la base y de `storage/zips`.
+- Instalación en el servidor de la escuela: Node.js como servicio (`pm2` en Linux o `NSSM` en Windows), conectado a Supabase; backup de la base (Supabase → Database → Backups, o `pg_dump`) y de `storage/zips`.
 - Borrar los datos de prueba y crear la cuenta admin real.
 
 ## 6. Roles del equipo
@@ -137,7 +141,10 @@ Ver `database/schema.sql`.
 | El servidor de la escuela no permite instalar Node.js | Confirmarlo en el Sprint 1 con el Departamento TICS. Plan B: usar una PC de la escuela como servidor dentro de la red. |
 | Subir 250 MB por la red de la escuela tarda o se corta | Barra de progreso real, aviso si se corta, 30 minutos de espera por subida. Falta probarlo en la red real de la escuela. |
 | ZIPs con archivos peligrosos | El ZIP no se descomprime ni se ejecuta, se guarda fuera de `public/` y se valida su contenido. |
-| Datos personales (DNI, emails) | Contraseñas encriptadas, DNI visible solo para el admin, `.env` fuera de GitHub. |
+| Datos personales (DNI, emails) | Contraseñas encriptadas, DNI visible solo para el admin, `.env` fuera de GitHub. Con Supabase los datos quedan en la nube (São Paulo): RLS activado y la dirección de la base solo la tiene el equipo. |
+| Supabase gratis pausa el proyecto tras una semana sin uso | Entrar a supabase.com y "Restore project". Antes de la muestra y de la entrega, revisar que esté activo. |
+| Alguien borra la base compartida por error | `npm run db:crear` nunca borra; `npm run db:reiniciar` pide escribir BORRAR. |
+| ZIP subidos desde distintas computadoras | Mientras se desarrolla, cada ZIP queda en la PC donde se subió (el sitio lo avisa). En la versión final todo se sube al servidor de la escuela. |
 | Falta de tiempo | Si un sprint se atrasa, lo primero que se recorta son los destacados y los filtros avanzados. |
 
 ## 8. Pendientes de confirmar

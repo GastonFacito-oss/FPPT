@@ -14,7 +14,7 @@ const demos = {
   1: {
     nombreZip: 'fppt-proyecto.zip',
     tamanio: 18_874_368,
-    subido: '2026-09-29 10:30:00',
+    subido: '2026-09-29T10:30:00-03:00',
     arbol: [
       carpeta('fppt', [
         carpeta('database', [archivo('schema.sql', 6_144), archivo('seed.sql', 4_096)]),
@@ -47,7 +47,7 @@ const demos = {
   2: {
     nombreZip: 'gestor-biblioteca.zip',
     tamanio: 42_991_616,
-    subido: '2025-11-18 14:05:00',
+    subido: '2025-11-18T14:05:00-03:00',
     arbol: [
       carpeta('gestor-biblioteca', [
         carpeta('base-de-datos', [archivo('biblioteca.sql', 12_288), archivo('datos-de-prueba.sql', 20_480)]),

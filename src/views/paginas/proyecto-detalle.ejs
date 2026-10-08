@@ -7,10 +7,6 @@
   };
   const estado = estados[proyecto.estado];
   const numero = String(proyecto.materia).replace(/\D/g, '') || 'general';
-  const fecha = function (texto) {
-    const [a, m, d] = String(texto).slice(0, 10).split('-');
-    return d + '/' + m + '/' + a;
-  };
   const tamanio = function (bytes) {
     if (bytes >= 1048576) return (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
     if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
@@ -60,10 +56,12 @@
         <div class="archivo-zip">
           <div class="archivo-zip__datos">
             <p class="archivo-zip__nombre"><%= archivos.nombreZip %></p>
-            <p class="archivo-zip__meta"><%= tamanio(archivos.tamanio) %> · Subido el <%= fecha(archivos.subido) %></p>
+            <p class="archivo-zip__meta"><%= tamanio(archivos.tamanio) %> · Subido el <%= formatearFecha(archivos.subido) %></p>
           </div>
-          <% if (archivos.real) { %>
+          <% if (archivos.real && archivos.disponible) { %>
             <a class="boton boton--acento" href="/proyectos/<%= proyecto.id %>/descargar" download>Descargar ZIP</a>
+          <% } else if (archivos.real) { %>
+            <button class="boton boton--acento" type="button" disabled aria-describedby="nota-descarga">Descargar ZIP</button>
           <% } else { %>
             <button class="boton boton--acento" type="button" data-descarga-demo aria-describedby="nota-descarga">
               Descargar ZIP
@@ -73,6 +71,11 @@
         <% if (!archivos.real) { %>
           <p class="nota-descarga texto-suave" id="nota-descarga" data-nota-descarga>
             En los proyectos subidos desde el sitio, este botón descarga el ZIP completo.
+          </p>
+        <% } else if (!archivos.disponible) { %>
+          <p class="nota-descarga nota-descarga--activa" id="nota-descarga">
+            Este ZIP se subió desde otra computadora y no está guardado en esta.
+            Se puede descargar desde la computadora donde se subió.
           </p>
         <% } %>
 

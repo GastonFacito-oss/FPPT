@@ -6,11 +6,14 @@ require('dotenv').config({ quiet: true });
 const config = {
   puerto: Number(process.env.PUERTO) || 3000,
   db: {
-    host: process.env.DB_HOST || 'localhost',
-    port: Number(process.env.DB_PUERTO) || 3306,
-    user: process.env.DB_USUARIO || 'root',
-    password: process.env.DB_CLAVE || '',
-    database: process.env.DB_NOMBRE || 'fppt',
+    // Dirección de la base PostgreSQL (Supabase). Se copia del panel de Supabase.
+    url: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/fppt',
+    // auto = cifrado (SSL) en todas las bases que no estén en esta misma computadora
+    ssl: (process.env.DB_SSL || 'auto').toLowerCase(),
+    // Opcional: certificado de Supabase para verificar que la conexión es auténtica
+    certificado: process.env.DB_SSL_CERTIFICADO || '',
+    // Conexiones abiertas a la vez. El plan gratis de Supabase tiene pocas: no subir mucho.
+    conexiones: Number(process.env.DB_CONEXIONES) || 4,
   },
   // Lista de dominios permitidos para registrarse. Vacía = se acepta cualquiera.
   emailDominios: (process.env.EMAIL_DOMINIO || '')
