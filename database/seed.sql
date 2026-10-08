@@ -13,27 +13,28 @@ INSERT INTO usuarios (nombre, email, dni, password_hash, rol) VALUES
 INSERT INTO tecnologias (nombre) VALUES
   ('HTML'), ('CSS'), ('JavaScript'), ('Node.js'), ('Java'), ('Python'), ('MySQL'), ('C#'), ('Arduino'), ('PHP');
 
+-- "creado" tiene fechas del pasado para que los proyectos subidos desde el sitio aparezcan primero.
 INSERT INTO proyectos
-  (titulo, descripcion_corta, descripcion, curso, division, anio, turno, materia, estado, estado_revision, destacado, creado_por, revisado_por, revisado_en)
+  (titulo, descripcion_corta, descripcion, curso, division, anio, turno, materia, estado, estado_revision, destacado, creado_por, revisado_por, revisado_en, creado)
 VALUES
   ('FPPT', 'Repositorio web para guardar y consultar los proyectos TIC de la escuela.',
    'Plataforma para preservar los proyectos de la orientación TIC: carga de proyectos, árbol de archivos, descarga y revisión docente.',
-   6, '2da', 2026, 'Mañana', 'Proyecto 3', 'en_curso', 'aprobado', 1, 3, 1, NOW()),
+   6, '2da', 2026, 'Mañana', 'Proyecto 3', 'en_curso', 'aprobado', 1, 3, 1, '2026-09-29 10:30:00', '2026-09-29 10:30:00'),
   ('Gestor de biblioteca', 'Sistema para registrar préstamos y devoluciones de libros.',
    'Aplicación de escritorio en Java con base de datos MySQL para administrar el catálogo y los préstamos de la biblioteca.',
-   5, '1ra', 2025, 'Tarde', 'Proyecto 2', 'terminado', 'aprobado', 1, 3, 1, NOW()),
+   5, '1ra', 2025, 'Tarde', 'Proyecto 2', 'terminado', 'aprobado', 1, 3, 1, '2025-11-18 14:05:00', '2025-11-18 14:05:00'),
   ('Juego de preguntas TIC', 'Trivia web para repasar contenidos de programación.',
    'Juego hecho con HTML, CSS y JavaScript con preguntas por niveles y tabla de puntajes.',
-   4, '3ra', 2025, 'Mañana', 'Proyecto 1', 'terminado', 'aprobado', 0, 3, 2, NOW()),
+   4, '3ra', 2025, 'Mañana', 'Proyecto 1', 'terminado', 'aprobado', 0, 3, 2, '2025-10-02 09:00:00', '2025-10-02 09:00:00'),
   ('Control de stock del buffet', 'Registro de productos, ventas y faltantes del buffet escolar.',
    'Sistema web con Node.js y MySQL que avisa cuando un producto está por agotarse.',
-   6, '1ra', 2024, 'Tarde', 'Proyecto 3', 'terminado', 'aprobado', 0, 3, 1, NOW()),
+   6, '1ra', 2024, 'Tarde', 'Proyecto 3', 'terminado', 'aprobado', 0, 3, 1, '2024-11-20 11:00:00', '2024-11-20 11:00:00'),
   ('Agenda de turnos del laboratorio', 'Reserva de computadoras del aula TIC por horario.',
    'Aplicación en Python para que los cursos reserven el laboratorio sin superponerse.',
-   5, '2da', 2024, 'Mañana', 'Proyecto 2', 'abandonado', 'aprobado', 0, 3, 2, NOW()),
+   5, '2da', 2024, 'Mañana', 'Proyecto 2', 'abandonado', 'aprobado', 0, 3, 2, '2024-09-10 16:00:00', '2024-09-10 16:00:00'),
   ('Proyecto pendiente de revisión', 'Este proyecto NO debe verse en el sitio hasta que lo aprueben.',
    'Sirve para probar que los proyectos pendientes no se muestran.',
-   4, '1ra', 2026, 'Mañana', 'Proyecto 1', 'en_curso', 'pendiente', 0, 3, NULL, NULL);
+   4, '1ra', 2026, 'Mañana', 'Proyecto 1', 'en_curso', 'pendiente', 0, 3, NULL, NULL, '2026-09-30 12:00:00');
 
 INSERT INTO proyecto_propietarios (proyecto_id, usuario_id) VALUES (1,3),(2,3),(3,3),(4,3),(5,3),(6,3);
 

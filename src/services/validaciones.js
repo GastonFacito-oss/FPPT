@@ -53,4 +53,70 @@ function emailPermitido(email) {
   return config.emailDominios.includes(dominio);
 }
 
-module.exports = { limpiarRegistro, validarRegistro };
+// ---------- Proyectos ----------
+
+const MATERIAS = ['Proyecto 1', 'Proyecto 2', 'Proyecto 3'];
+const TURNOS = ['Mañana', 'Tarde', 'Vespertino'];
+const ESTADOS = ['terminado', 'en_curso', 'abandonado'];
+
+// Si un campo llega repetido, se usa el primer valor
+const texto = (valor) => String((Array.isArray(valor) ? valor[0] : valor) || '').trim();
+const lista = (valor) => [].concat(valor || []); // un valor suelto o varios -> siempre un array
+
+function limpiarProyecto(body) {
+  return {
+    titulo: texto(body.titulo).replace(/\s+/g, ' '),
+    descripcion_corta: texto(body.descripcion_corta).replace(/\s+/g, ' '),
+    descripcion: texto(body.descripcion).replace(/\r\n/g, '\n'),
+    materia: texto(body.materia),
+    curso: Number(texto(body.curso)),
+    division: texto(body.division),
+    anio: Number(texto(body.anio)),
+    turno: texto(body.turno),
+    estado: texto(body.estado),
+    // Un integrante por línea, sin líneas vacías ni repetidos
+    integrantes: [...new Set(texto(body.integrantes).split(/\r?\n/).map((n) => n.trim().replace(/\s+/g, ' ')).filter(Boolean))],
+    // Emails separados por coma, punto y coma o espacios
+    propietarios: [...new Set(texto(body.propietarios).toLowerCase().split(/[\s,;]+/).filter(Boolean))],
+    tecnologias: [...new Set(lista(body.tecnologias).map(Number).filter((id) => Number.isInteger(id) && id > 0))],
+  };
+}
+
+function validarProyecto(datos) {
+  const errores = {};
+  const anioActual = new Date().getFullYear();
+
+  if (datos.titulo.length < 3 || datos.titulo.length > 150) {
+    errores.titulo = 'El nombre tiene que tener entre 3 y 150 caracteres.';
+  }
+  if (datos.descripcion_corta.length < 10 || datos.descripcion_corta.length > 200) {
+    errores.descripcion_corta = 'La descripción corta tiene que tener entre 10 y 200 caracteres.';
+  }
+  if (datos.descripcion.length < 20 || datos.descripcion.length > 5000) {
+    errores.descripcion = 'Contá un poco más del proyecto (entre 20 y 5000 caracteres).';
+  }
+  if (!MATERIAS.includes(datos.materia)) errores.materia = 'Elegí la materia.';
+  if (!Number.isInteger(datos.curso) || datos.curso < 1 || datos.curso > 7) errores.curso = 'Elegí el curso.';
+  if (!/^[\p{L}\d°º ]{1,10}$/u.test(datos.division)) errores.division = 'Escribí la división (por ejemplo: 2da).';
+  if (!Number.isInteger(datos.anio) || datos.anio < 2000 || datos.anio > anioActual) {
+    errores.anio = `El año tiene que estar entre 2000 y ${anioActual}.`;
+  }
+  if (!TURNOS.includes(datos.turno)) errores.turno = 'Elegí el turno.';
+  if (!ESTADOS.includes(datos.estado)) errores.estado = 'Elegí el estado.';
+
+  if (datos.integrantes.length === 0) {
+    errores.integrantes = 'Escribí al menos un integrante.';
+  } else if (datos.integrantes.length > 15 || datos.integrantes.some((n) => n.length > 120)) {
+    errores.integrantes = 'Hasta 15 integrantes, con nombres de hasta 120 caracteres.';
+  }
+
+  if (datos.propietarios.length > 10) {
+    errores.propietarios = 'Podés agregar hasta 10 compañeros.';
+  } else if (datos.propietarios.some((email) => !EMAIL.test(email))) {
+    errores.propietarios = 'Revisá los emails: hay uno que no es válido.';
+  }
+
+  return errores;
+}
+
+module.exports = { limpiarRegistro, validarRegistro, limpiarProyecto, validarProyecto, MATERIAS, TURNOS, ESTADOS };

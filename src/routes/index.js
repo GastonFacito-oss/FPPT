@@ -5,6 +5,7 @@ const auth = require('../controllers/authController');
 const proyectos = require('../controllers/proyectosController');
 const { requiereLogin, soloInvitados } = require('../middlewares/auth');
 const { prepararCsrf } = require('../middlewares/sesion');
+const { recibirZip } = require('../middlewares/subida');
 
 const router = express.Router();
 
@@ -23,10 +24,10 @@ router.post('/registro', soloInvitados, auth.registrar);
 router.post('/salir', auth.salir);
 
 // Proyectos
+router.get('/proyectos', proyectos.listar);
 router.get('/proyectos/:id', proyectos.detalle);
+router.get('/proyectos/:id/descargar', proyectos.descargar);
 router.get('/subir', requiereLogin, prepararCsrf, proyectos.mostrarSubir);
-
-// Secciones que se construyen en los próximos sprints
-router.get('/proyectos', paginas.enConstruccion('Proyectos', 3));
+router.post('/subir', requiereLogin, recibirZip, proyectos.subir);
 
 module.exports = router;

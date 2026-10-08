@@ -1,12 +1,14 @@
-// Pantalla "Subir proyecto" (VERSIÓN DE DEMOSTRACIÓN).
-// - Lee la lista de archivos del ZIP elegido directamente en el navegador (no lo sube)
-//   y la muestra como árbol de carpetas.
-// - Revisa el tamaño y que no tenga archivos peligrosos.
-// - Al guardar, simula la barra de progreso. No se envía nada al servidor.
+// Pantalla "Subir proyecto".
+// - Antes de subir, lee la lista de archivos del ZIP en el navegador y la muestra como árbol.
+// - Revisa el tamaño y que no tenga archivos peligrosos (el servidor lo vuelve a revisar).
+// - Sube el formulario con una barra de progreso real y, al terminar, vuelve al inicio,
+//   donde el proyecto nuevo aparece primero.
+// Si el navegador no tiene JavaScript, el formulario se envía igual de la forma común.
 (function () {
   'use strict';
 
   var MAX_MB = window.FPPT_ZIP_MAX_MB || 250;
+  // Misma lista que src/services/zip.js
   var PROHIBIDAS = ['exe', 'bat', 'cmd', 'msi', 'vbs', 'ps1', 'scr', 'com'];
 
   var form = document.getElementById('form-subir');
@@ -18,7 +20,8 @@
   var vistaZip = document.getElementById('vista-zip');
   var resultado = document.getElementById('resultado');
   var botonGuardar = document.getElementById('boton-guardar');
-  var zipValido = null; // { nombre, tamanio, cantidad }
+  var zipValido = null; // { nombre, tamanio }
+  var subiendo = false;
 
   // ---------- Contador de la descripción corta ----------
   var corta = document.getElementById('descripcion_corta');
@@ -57,7 +60,7 @@
     leerListaZip(archivo)
       .then(function (entradas) {
         entradas = entradas.filter(function (e) {
-          return e.ruta.indexOf('__MACOSX/') !== 0 && !/(^|\/)\.DS_Store$/.test(e.ruta);
+          return e.ruta.indexOf('__MACOSX/') !== 0 && !/(^|\/)(\.DS_Store|Thumbs\.db|desktop\.ini)$/i.test(e.ruta);
         });
         var archivos = entradas.filter(function (e) { return !e.esCarpeta; });
 
@@ -71,24 +74,31 @@
             peligrosos.slice(0, 3).map(function (e) { return e.ruta; }).join(', ') +
             (peligrosos.length > 3 ? '…' : '') + '. Sacalos y volvé a comprimir.');
         }
-        if (entradas.some(function (e) { return e.ruta.indexOf('..') !== -1 || e.ruta.charAt(0) === '/'; })) {
+        if (entradas.some(function (e) { return /(^|\/)\.\.(\/|$)/.test(e.ruta) || e.ruta.charAt(0) === '/'; })) {
           return mostrarErrorZip('El ZIP tiene rutas no válidas.');
         }
 
-        zipValido = { nombre: archivo.name, tamanio: archivo.size, cantidad: archivos.length };
-        document.getElementById('zip-nombre').textContent = archivo.name;
-        document.getElementById('zip-meta').textContent =
-          formatearTamanio(archivo.size) + ' · ' + archivos.length + ' archivos';
-        var contenedor = document.getElementById('zip-arbol');
-        contenedor.innerHTML = '';
-        contenedor.appendChild(crearArbol(armarArbol(entradas), 0));
-        vistaZip.classList.remove('oculto');
+        mostrarZip(archivo, archivos.length + ' archivos', armarArbol(entradas));
       })
       .catch(function (err) {
-        mostrarErrorZip(err && err.message === 'zip64'
-          ? 'Este ZIP es demasiado grande para la vista previa, pero se va a poder subir.'
-          : 'No se pudo leer el ZIP. ¿Está dañado? Probá comprimirlo de nuevo.');
+        if (err && err.message === 'zip64') {
+          // ZIP muy grande para leerlo acá: se puede subir igual, el servidor lo revisa
+          return mostrarZip(archivo, 'Vista previa no disponible para este ZIP', null);
+        }
+        mostrarErrorZip('No se pudo leer el ZIP. ¿Está dañado? Probá comprimirlo de nuevo.');
       });
+  }
+
+  function mostrarZip(archivo, detalle, arbol) {
+    zipValido = { nombre: archivo.name, tamanio: archivo.size };
+    document.getElementById('zip-nombre').textContent = archivo.name;
+    document.getElementById('zip-meta').textContent = formatearTamanio(archivo.size) + ' · ' + detalle;
+    var contenedor = document.getElementById('zip-arbol');
+    contenedor.innerHTML = '';
+    contenedor.classList.toggle('oculto', !arbol);
+    document.getElementById('zip-vista-texto').classList.toggle('oculto', !arbol);
+    if (arbol) contenedor.appendChild(crearArbol(arbol, 0));
+    vistaZip.classList.remove('oculto');
   }
 
   function mostrarErrorZip(texto) {
@@ -228,17 +238,20 @@
     return bytes + ' B';
   }
 
-  // ---------- Guardar (simulado) ----------
+  // ---------- Guardar: subir el formulario ----------
   form.addEventListener('submit', function (evento) {
     evento.preventDefault();
-    resultado.classList.add('oculto');
+    if (subiendo) return;
+    ocultarResultado();
+    borrarErroresDelServidor();
 
     var primerError = validarFormulario();
     if (primerError) {
+      mostrarResultado('Revisá los datos marcados en rojo.');
       primerError.focus();
       return;
     }
-    simularSubida();
+    subirFormulario();
   });
 
   function validarFormulario() {
@@ -261,38 +274,119 @@
     return primerError;
   }
 
-  function simularSubida() {
+  function subirFormulario() {
     var caja = document.getElementById('progreso-subida');
     var barra = document.getElementById('progreso-barra');
     var relleno = barra.querySelector('.progreso__barra');
     var porcentaje = document.getElementById('progreso-porcentaje');
     var etiqueta = document.getElementById('progreso-etiqueta');
-    var avance = 0;
 
-    caja.classList.remove('oculto');
-    etiqueta.textContent = 'Subiendo ' + zipValido.nombre + '…';
-    botonGuardar.disabled = true;
+    function actualizar(valor, texto) {
+      relleno.style.width = valor + '%';
+      barra.setAttribute('aria-valuenow', Math.round(valor));
+      porcentaje.textContent = Math.round(valor) + '%';
+      if (texto) etiqueta.textContent = texto;
+    }
 
-    var intervalo = setInterval(function () {
-      avance = Math.min(100, avance + 4 + Math.random() * 8);
-      relleno.style.width = avance + '%';
-      barra.setAttribute('aria-valuenow', Math.round(avance));
-      porcentaje.textContent = Math.round(avance) + '%';
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', form.action);
+    xhr.responseType = 'json';
+    xhr.setRequestHeader('X-Requested-With', 'fetch'); // el servidor responde en JSON
+    xhr.setRequestHeader('X-CSRF-Token', form.elements._csrf.value);
 
-      if (avance >= 100) {
-        clearInterval(intervalo);
-        etiqueta.textContent = 'Listo';
-        botonGuardar.disabled = false;
-        resultado.innerHTML = '';
-        resultado.appendChild(document.createTextNode('¡Simulación completa! En la versión final, “'));
-        var nombre = document.createElement('strong');
-        nombre.textContent = document.getElementById('titulo').value.trim();
-        resultado.appendChild(nombre);
-        resultado.appendChild(document.createTextNode('” quedaría guardado y pendiente de revisión docente. (No se guardó nada.)'));
-        resultado.classList.remove('oculto');
-        resultado.focus();
-        resultado.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    xhr.upload.addEventListener('progress', function (e) {
+      if (e.lengthComputable) actualizar((e.loaded / e.total) * 100);
+    });
+    xhr.upload.addEventListener('load', function () {
+      actualizar(100, 'Revisando el ZIP…');
+    });
+
+    xhr.addEventListener('load', function () {
+      var respuesta = xhr.response || {};
+      if (xhr.status === 200 && respuesta.ok) {
+        etiqueta.textContent = '¡Listo! Abriendo el inicio…';
+        subiendo = false;
+        window.location.href = respuesta.url; // el inicio, con el proyecto nuevo primero
+        return;
       }
-    }, 120);
+      terminar();
+      if (respuesta.errores) {
+        mostrarErroresDelServidor(respuesta.errores);
+        mostrarResultado('Revisá los datos marcados en rojo.');
+      } else {
+        mostrarResultado(respuesta.mensaje || 'No se pudo guardar el proyecto. Probá de nuevo en unos minutos.');
+      }
+    });
+
+    xhr.addEventListener('error', function () {
+      terminar();
+      mostrarResultado('Se cortó la conexión mientras se subía el archivo. Revisá internet y probá de nuevo.');
+    });
+
+    subiendo = true;
+    botonGuardar.disabled = true;
+    caja.classList.remove('oculto');
+    actualizar(0, 'Subiendo ' + zipValido.nombre + '…');
+    xhr.send(new FormData(form));
+
+    function terminar() {
+      subiendo = false;
+      botonGuardar.disabled = false;
+      caja.classList.add('oculto');
+    }
+  }
+
+  // Avisa antes de cerrar la página si hay una subida en curso
+  window.addEventListener('beforeunload', function (e) {
+    if (subiendo) {
+      e.preventDefault();
+      e.returnValue = '';
+    }
+  });
+
+  // ---------- Mensajes ----------
+  function mostrarResultado(texto) {
+    resultado.textContent = texto;
+    resultado.classList.remove('oculto');
+    resultado.focus();
+    resultado.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function ocultarResultado() {
+    resultado.classList.add('oculto');
+  }
+
+  // Errores que devuelve el servidor: { campo: 'mensaje' }
+  function mostrarErroresDelServidor(errores) {
+    Object.keys(errores).forEach(function (campo) {
+      if (campo === 'zip') return mostrarErrorZip(errores.zip);
+      var input = document.getElementById(campo);
+      if (!input) return;
+      var contenedor = input.closest('.campo');
+      contenedor.classList.add('campo--error');
+      input.setAttribute('aria-invalid', 'true');
+      var descripciones = (input.getAttribute('aria-describedby') || '').split(' ');
+      if (descripciones.indexOf(campo + '-error') === -1) {
+        input.setAttribute('aria-describedby', descripciones.concat(campo + '-error').join(' ').trim());
+      }
+      var mensaje = document.createElement('small');
+      mensaje.className = 'campo__error';
+      mensaje.id = campo + '-error';
+      mensaje.setAttribute('data-error-servidor', '');
+      mensaje.textContent = errores[campo];
+      contenedor.appendChild(mensaje);
+    });
+  }
+
+  function borrarErroresDelServidor() {
+    form.querySelectorAll('[data-error-servidor], .campo > .campo__error:not(#zip-error)').forEach(function (el) {
+      el.remove();
+    });
+    form.querySelectorAll('.campo--error:not(#campo-zip)').forEach(function (el) {
+      el.classList.remove('campo--error');
+    });
+    form.querySelectorAll('[aria-invalid]:not(#zip)').forEach(function (el) {
+      el.removeAttribute('aria-invalid');
+    });
   }
 })();

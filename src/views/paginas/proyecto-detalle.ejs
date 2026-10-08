@@ -11,7 +11,11 @@
     const [a, m, d] = String(texto).slice(0, 10).split('-');
     return d + '/' + m + '/' + a;
   };
-  const megas = function (bytes) { return (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB'; };
+  const tamanio = function (bytes) {
+    if (bytes >= 1048576) return (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
+    if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
+    return bytes + ' B';
+  };
 %>
 
 <section class="detalle-cabecera">
@@ -46,23 +50,31 @@
       </div>
 
       <% if (archivos) { %>
-        <div class="alerta alerta--aviso">
-          <strong>Vista de demostración.</strong> Estos archivos son un ejemplo de cómo se va a ver un proyecto;
-          la descarga todavía no está habilitada.
-        </div>
+        <% if (!archivos.real) { %>
+          <div class="alerta alerta--aviso">
+            <strong>Proyecto de ejemplo.</strong> Estos archivos muestran cómo se ve un proyecto;
+            este ZIP no se puede descargar.
+          </div>
+        <% } %>
 
         <div class="archivo-zip">
           <div class="archivo-zip__datos">
             <p class="archivo-zip__nombre"><%= archivos.nombreZip %></p>
-            <p class="archivo-zip__meta"><%= megas(archivos.tamanio) %> · Subido el <%= fecha(archivos.subido) %></p>
+            <p class="archivo-zip__meta"><%= tamanio(archivos.tamanio) %> · Subido el <%= fecha(archivos.subido) %></p>
           </div>
-          <button class="boton boton--acento" type="button" data-descarga-demo aria-describedby="nota-descarga">
-            Descargar ZIP
-          </button>
+          <% if (archivos.real) { %>
+            <a class="boton boton--acento" href="/proyectos/<%= proyecto.id %>/descargar" download>Descargar ZIP</a>
+          <% } else { %>
+            <button class="boton boton--acento" type="button" data-descarga-demo aria-describedby="nota-descarga">
+              Descargar ZIP
+            </button>
+          <% } %>
         </div>
-        <p class="nota-descarga texto-suave" id="nota-descarga" data-nota-descarga>
-          En la versión final este botón descarga el ZIP completo del proyecto.
-        </p>
+        <% if (!archivos.real) { %>
+          <p class="nota-descarga texto-suave" id="nota-descarga" data-nota-descarga>
+            En los proyectos subidos desde el sitio, este botón descarga el ZIP completo.
+          </p>
+        <% } %>
 
         <div class="arbol-contenedor">
           <%- include('../partials/arbol', { nodos: archivos.arbol, nivel: 0 }) %>
@@ -100,13 +112,13 @@
 </section>
 
 <script>
-  // Simulación: el botón de descarga solo avisa que todavía no está disponible.
+  // Proyectos de ejemplo: el botón de descarga solo muestra un aviso.
   (function () {
     var boton = document.querySelector('[data-descarga-demo]');
     var nota = document.querySelector('[data-nota-descarga]');
     if (!boton || !nota) return;
     boton.addEventListener('click', function () {
-      nota.textContent = 'Demostración: la descarga se habilita cuando esté listo el gestor de archivos (Sprint 4).';
+      nota.textContent = 'Este es un proyecto de ejemplo: su ZIP no existe. Probá con un proyecto subido desde "Subir proyecto".';
       nota.classList.add('nota-descarga--activa');
     });
   })();

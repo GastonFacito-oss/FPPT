@@ -27,4 +27,11 @@ async function crear({ nombre, email, dni, passwordHash }) {
   return resultado.insertId;
 }
 
-module.exports = { buscarPorEmail, datosRepetidos, crear };
+// Busca varias cuentas por email (para agregar compañeros como propietarios de un proyecto)
+async function buscarPorEmails(emails) {
+  if (emails.length === 0) return [];
+  const marcas = emails.map(() => '?').join(', ');
+  return consultar(`SELECT id, email FROM usuarios WHERE activo = 1 AND email IN (${marcas})`, emails);
+}
+
+module.exports = { buscarPorEmail, datosRepetidos, crear, buscarPorEmails };

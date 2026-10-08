@@ -68,9 +68,10 @@ En <http://localhost:3000/salud> se ve si el servidor y la base de datos están 
 
 | Dirección | Qué hay |
 |---|---|
-| `/` | Inicio con destacados y recientes |
-| `/proyectos/1` y `/proyectos/2` | Detalle del proyecto con árbol de archivos (**demostración**: no descarga) |
-| `/subir` | Formulario para subir un proyecto (**demostración**: no guarda). Hay que iniciar sesión |
+| `/` | Inicio: los proyectos subidos más recientes primero, y los destacados |
+| `/proyectos` | Todos los proyectos, de a 12 por página |
+| `/proyectos/1` y `/proyectos/2` | Proyectos **de ejemplo**: se ve el árbol de archivos pero no se pueden descargar |
+| `/subir` | Subir un proyecto con su ZIP (hay que iniciar sesión). Al terminar aparece primero en el Inicio y se puede descargar |
 | `/ingresar` y `/registro` | Inicio de sesión y creación de cuenta (funcionan de verdad) |
 | `/sobre-fppt`, `/ayuda` | Información y preguntas frecuentes |
 | `/componentes` | Guía del sistema de diseño |
@@ -87,6 +88,9 @@ Todas tienen la contraseña `CambiarEsta2026`:
 
 Los proyectos de `seed.sql` son **ficticios**, solo para probar. Se borran antes de la entrega.
 
+Los ZIP que se suben se guardan en `storage/zips` (no se suben a GitHub). `npm run db:crear` borra la
+base **y** esos ZIP.
+
 ## Estructura de carpetas
 
 ```
@@ -100,7 +104,9 @@ src/
   routes/          qué controlador responde a cada dirección
   controllers/     reciben el pedido, piden datos y eligen la vista
   models/          consultas SQL
-  middlewares/     funciones que se ejecutan antes o después de las rutas (errores, permisos...)
+  services/        reglas reutilizables: validaciones, lectura de ZIP, intentos de login
+  middlewares/     funciones que se ejecutan antes o después de las rutas (sesión, permisos, subida, errores)
+  data/            árboles de archivos de los proyectos de ejemplo
   views/           páginas EJS (partials/ = cabecera, pie, tarjeta)
 storage/zips/      ZIPs subidos (no se suben a GitHub)
 ```

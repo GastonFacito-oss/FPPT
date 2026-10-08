@@ -51,23 +51,34 @@ function avisar(req, tipo, texto) {
   req.session.avisos = [...(req.session.avisos || []), { tipo, texto }];
 }
 
+// ¿El token recibido (del formulario o del encabezado X-CSRF-Token) es el de esta sesión?
+function tokenValido(req) {
+  const recibido = (req.body && req.body._csrf) || req.get('X-CSRF-Token') || '';
+  const enviado = Buffer.from(String(recibido));
+  const esperado = Buffer.from(String(req.session.csrf || ''));
+  return esperado.length > 0 && enviado.length === esperado.length && crypto.timingSafeEqual(enviado, esperado);
+}
+
+function rechazarFormulario(req, res) {
+  const mensaje = 'El formulario venció. Recargá la página y probá de nuevo.';
+  if (esPedidoJs(req)) return res.status(403).json({ ok: false, mensaje });
+  res.status(403).render('paginas/error', { titulo: 'Formulario vencido', codigo: 403, mensaje });
+}
+
 // Rechaza los formularios que no traen el token correcto
 function verificarCsrf(req, res, next) {
   if (req.method !== 'POST') return next();
-  const enviado = Buffer.from(String((req.body && req.body._csrf) || ''));
-  const esperado = Buffer.from(String(req.session.csrf || ''));
-  const valido =
-    esperado.length > 0 &&
-    enviado.length === esperado.length &&
-    crypto.timingSafeEqual(enviado, esperado);
-  if (!valido) {
-    return res.status(403).render('paginas/error', {
-      titulo: 'Formulario vencido',
-      codigo: 403,
-      mensaje: 'El formulario venció. Volvé atrás, recargá la página y probá de nuevo.',
-    });
-  }
+  // La subida de proyectos llega como "multipart" (con archivo): su token se revisa
+  // en src/middlewares/subida.js, antes de guardar el archivo.
+  if (req.path === '/subir' && req.is('multipart/form-data')) return next();
+  if (!tokenValido(req)) return rechazarFormulario(req, res);
   next();
 }
 
-module.exports = { sesion, datosDeSesion, prepararCsrf, nuevoToken, avisar, verificarCsrf };
+// Pedidos hechos desde JavaScript (por ejemplo, la subida con barra de progreso):
+// esperan una respuesta en JSON en lugar de una página
+function esPedidoJs(req) {
+  return req.get('X-Requested-With') === 'fetch';
+}
+
+module.exports = { sesion, datosDeSesion, prepararCsrf, nuevoToken, avisar, verificarCsrf, tokenValido, rechazarFormulario, esPedidoJs };

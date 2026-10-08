@@ -21,7 +21,7 @@
 <section class="seccion">
   <div class="contenedor">
     <div class="seccion__encabezado">
-      <h2>Destacados y recientes</h2>
+      <h2>Subidos recientemente</h2>
       <a class="enlace-flecha" href="/proyectos">Ver todos</a>
     </div>
 
@@ -29,20 +29,35 @@
       <div class="alerta alerta--aviso" role="status">
         No se pudo conectar con la base de datos. Revisá que MySQL esté encendido en XAMPP.
       </div>
-    <% } else if (proyectos.length === 0) { %>
+    <% } else if (recientes.length === 0) { %>
       <div class="vacio">
         <p>Todavía no hay proyectos publicados.</p>
         <a class="boton boton--primario" href="/subir">Subí el primero</a>
       </div>
     <% } else { %>
       <div class="grilla-tarjetas">
-        <% proyectos.forEach(function (proyecto) { %>
+        <% recientes.forEach(function (proyecto) { %>
           <%- include('../partials/tarjeta-proyecto', { proyecto }) %>
         <% }) %>
       </div>
     <% } %>
   </div>
 </section>
+
+<% if (destacados.length) { %>
+  <section class="seccion seccion--sin-arriba">
+    <div class="contenedor">
+      <div class="seccion__encabezado">
+        <h2>Destacados</h2>
+      </div>
+      <div class="grilla-tarjetas">
+        <% destacados.forEach(function (proyecto) { %>
+          <%- include('../partials/tarjeta-proyecto', { proyecto }) %>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+<% } %>
 
 <section class="seccion seccion--suave">
   <div class="contenedor pasos">
@@ -61,7 +76,7 @@
       <li class="paso">
         <span class="paso__numero">3</span>
         <h3>Queda guardado</h3>
-        <p>Un docente lo revisa y lo publica para que cualquiera lo consulte.</p>
+        <p>Aparece al instante en el inicio y cualquiera lo puede consultar y descargar.</p>
       </li>
     </ol>
   </div>

@@ -3,7 +3,7 @@
   const numero = String(proyecto.materia || '').replace(/\D/g, '') || 'general';
   const portada = '/img/portadas/proyecto-' + numero + '.svg';
 %>
-<article class="tarjeta">
+<article class="tarjeta" id="proyecto-<%= proyecto.id %>">
   <img class="tarjeta__portada" src="<%= portada %>" alt="" width="400" height="225" loading="lazy">
   <div class="tarjeta__cuerpo">
     <p class="tarjeta__meta">
@@ -15,5 +15,10 @@
     </h3>
     <p class="tarjeta__descripcion"><%= proyecto.descripcion_corta %></p>
   </div>
-  <% if (proyecto.destacado) { %><span class="tarjeta__destacado">Destacado</span><% } %>
+  <% if (Number(proyecto.es_nuevo) || proyecto.destacado) { %>
+    <p class="tarjeta__insignias">
+      <% if (Number(proyecto.es_nuevo)) { %><span class="insignia insignia--nuevo">Nuevo</span><% } %>
+      <% if (proyecto.destacado) { %><span class="insignia">Destacado</span><% } %>
+    </p>
+  <% } %>
 </article>

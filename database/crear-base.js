@@ -1,6 +1,6 @@
 // Crea la base "fppt" desde cero y carga los datos de prueba.
 // Uso:  npm run db:crear
-// ¡Borra todo lo que haya en la base "fppt"!
+// ¡Borra todo lo que haya en la base "fppt" y los ZIP subidos!
 const fs = require('fs');
 const path = require('path');
 const mysql = require('mysql2/promise');
@@ -23,6 +23,13 @@ async function main() {
   }
 
   await conexion.end();
+
+  // La base nueva no tiene proyectos subidos: se borran los ZIP que hubiera de antes
+  fs.mkdirSync(config.carpetaZips, { recursive: true });
+  const zips = fs.readdirSync(config.carpetaZips).filter((nombre) => nombre.endsWith('.zip'));
+  for (const nombre of zips) fs.unlinkSync(path.join(config.carpetaZips, nombre));
+  if (zips.length) console.log(`✔ ${zips.length} ZIP subidos antes borrados de storage/zips`);
+
   console.log('Base de datos "fppt" lista.');
 }
 

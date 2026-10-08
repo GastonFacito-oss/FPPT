@@ -247,10 +247,23 @@ code { font-size: .9em; background: var(--celeste); padding: .1em .4em; border-r
   margin: 0; color: var(--tinta-suave); font-size: .95rem;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
-.tarjeta__destacado {
-  position: absolute; top: .75rem; left: .75rem;
+/* Insignias sobre la portada: "Nuevo" (últimos 7 días) y "Destacado" */
+.tarjeta__insignias {
+  position: absolute; top: .75rem; left: .75rem; margin: 0;
+  display: flex; gap: .35rem; pointer-events: none;
+}
+.insignia {
   background: var(--naranja); color: var(--tinta);
   font-size: .75rem; font-weight: 800; padding: .25rem .7rem; border-radius: 999px;
+}
+.insignia--nuevo { background: var(--blanco); color: var(--exito); box-shadow: var(--sombra); }
+
+/* El inicio salta a la tarjeta recién subida (/#proyecto-ID) y la resalta */
+.tarjeta { scroll-margin-top: 96px; }
+.tarjeta:target { outline: 3px solid var(--naranja); outline-offset: 3px; animation: resaltar 1.6s ease-out 2; }
+@keyframes resaltar {
+  0% { box-shadow: 0 0 0 0 rgba(232, 135, 30, .55); }
+  100% { box-shadow: 0 0 0 18px rgba(232, 135, 30, 0); }
 }
 
 /* ---------- 8. Etiquetas ---------- */
@@ -389,7 +402,7 @@ code { font-size: .9em; background: var(--celeste); padding: .1em .4em; border-r
 
 /* ---------- 16. Movimiento reducido ---------- */
 @media (prefers-reduced-motion: reduce) {
-  * { transition: none !important; }
+  * { transition: none !important; animation: none !important; }
 }
 
 /* =========================================================
@@ -559,3 +572,11 @@ details[open] > .arbol__carpeta::before { transform: rotate(90deg); }
 
 .progreso--ancho { max-width: none; }
 .progreso__texto { display: flex; justify-content: space-between; margin: 0 0 .4rem; font-size: .95rem; }
+
+/* ---------- 22. Lista de proyectos ---------- */
+.seccion--sin-arriba { padding-top: 0; }
+.paginacion {
+  display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;
+  margin-top: 2.5rem;
+}
+.paginacion__estado { color: var(--tinta-suave); font-weight: 600; }

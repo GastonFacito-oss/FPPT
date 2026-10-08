@@ -12,7 +12,7 @@ Metodología: Scrum con **6 sprints de una semana**.
 | Roles | Estudiante, docente y admin. El admin es el equipo FPPT y asigna el rol de docente. |
 | Datos del proyecto | Título, descripción corta, descripción, curso, división, año, turno, materia (Proyecto 1, 2 o 3), tecnologías, integrantes y estado (terminado, en curso o abandonado). |
 | Propietarios | Lo sube un alumno, que puede agregar como propietarios a sus compañeros registrados. |
-| Publicación | El proyecto queda **pendiente** hasta que lo aprueba un docente o el admin. |
+| Publicación | **Se publica al instante** y aparece primero en el Inicio (cambio pedido por el equipo el 8/10). Los docentes y el admin lo moderan después desde el panel (Sprint 5). La revisión previa se puede volver a activar guardando los proyectos como `pendiente` en `proyectoModel.crear`. |
 | Archivos | Solo software. Un **ZIP de hasta 250 MB** por proyecto (se aceptan `.jar` adentro). El sitio muestra el árbol de carpetas. Se descarga el ZIP completo. Un ZIP nuevo reemplaza al anterior. |
 | Proyectos viejos | Se pueden cargar proyectos de años anteriores. |
 | Inicio | Mezcla de destacados y recientes. La tarjeta muestra nombre, descripción corta, materia y curso. Al hacer clic se abre el detalle con el árbol de archivos. |
@@ -72,8 +72,8 @@ Ver `database/schema.sql`.
 |---|---|---|---|
 | **1** | 30/9 – 6/10 | Base del proyecto: repositorio, servidor Express, base de datos, sistema de diseño, plantilla común, Inicio, Sobre FPPT y Ayuda | ✅ Base lista |
 | **2** | 7/10 – 13/10 | Registro (Gmail escolar + DNI), login, logout, sesiones y permisos por rol | ✅ Listo (adelantado). Falta: dominio del Gmail escolar |
-| **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | 🟡 Detalle y formulario hechos como **demostración** (no guardan) |
-| **4** | 21/10 – 27/10 | Subida del ZIP (250 MB) con barra de progreso, árbol de carpetas, reemplazo y descarga | Pendiente |
+| **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | 🟡 Alta, muro, lista con páginas, detalle y propietarios ✅ (adelantado). Falta: editar y eliminar |
+| **4** | 21/10 – 27/10 | Subida del ZIP (250 MB) con barra de progreso, árbol de carpetas, reemplazo y descarga | 🟡 Subida, árbol y descarga ✅ (adelantado). Falta: reemplazar el ZIP |
 | **5** | 28/10 – 3/11 | Panel de admin y docentes (aprobar, destacar, usuarios), búsqueda y filtros, Mis proyectos | Pendiente |
 | **6** | 4/11 – 10/11 | Pruebas con 5 usuarios, correcciones, manual de usuario, instalación en el servidor y backup | Pendiente |
 | **Entrega** | **11/11** | Versión `v1.0` | |
@@ -89,26 +89,29 @@ Ver `database/schema.sql`.
 - Protección de formularios contra CSRF y límite de intentos de login.
 - KPI: 5/5 funciones probadas (registro, validaciones, usuario repetido, login, credenciales incorrectas).
 
-**Demostraciones ya hechas (se reemplazan en los Sprints 3 y 4)**
-- `/proyectos/1` y `/proyectos/2`: detalle con árbol de archivos de ejemplo (`src/data/demo-archivos.js`).
-  El botón "Descargar ZIP" solo muestra un aviso.
-- `/subir` (requiere sesión): formulario completo. Al elegir un ZIP, el navegador lee su lista de archivos
-  y muestra el árbol real, rechaza `.exe`/`.bat`/etc. y archivos de más de 250 MB. "Guardar proyecto"
-  simula la barra de progreso y no envía nada.
+**Sprint 3 · Proyectos** (alta ✅, falta editar y eliminar)
+- ✅ `/subir` guarda el proyecto con sus integrantes, tecnologías y propietarios (compañeros con cuenta,
+  buscados por email) en una transacción: o se guarda todo o nada.
+- ✅ Inicio: "Subidos recientemente" (el más nuevo primero, con insignia "Nuevo" durante 7 días) y
+  "Destacados" (los que no entran en recientes). Al terminar de subir, el Inicio salta a la tarjeta nueva.
+- ✅ `/proyectos`: todos los proyectos publicados, de a 12 por página.
+- Falta: editar y eliminar. Solo los propietarios (o el admin) editan y eliminan.
+- `/proyectos/1` y `/proyectos/2` siguen siendo proyectos de ejemplo (`src/data/demo-archivos.js`):
+  su ZIP no existe y el botón de descarga solo muestra un aviso.
 
-**Sprint 3 · Proyectos**
-- CRUD completo. Solo los propietarios (o el admin) editan y eliminan.
-- Agregar propietarios buscando por email de compañeros registrados.
-- Al crear o editar, el proyecto vuelve a quedar **pendiente**.
-
-**Sprint 4 · Archivos**
-- Paquete `multer` para recibir el ZIP directo al disco, con límite de 250 MB.
-- Leer la lista de archivos del ZIP **sin descomprimirlo** (paquete `yauzl`) y guardarla en `arbol_json`.
-- Rechazar ZIPs que tengan `.exe`, `.bat`, `.cmd`, `.msi`, `.vbs`, `.ps1` o `.scr`, rutas con `../`, o que no sean ZIP válidos.
-- Descarga con `res.download()`. Nunca se ejecuta nada del ZIP.
+**Sprint 4 · Archivos** (subida y descarga ✅, falta reemplazar)
+- ✅ `multer` recibe el ZIP directo a `storage/zips` con un nombre al azar y límite de 250 MB. El token CSRF
+  se revisa **antes** de guardar el archivo. Si algo falla, el archivo se borra.
+- ✅ `yauzl` lee la lista de archivos **sin descomprimir** y se guarda en `arbol_json`. Se rechazan ZIPs con
+  `.exe`, `.bat`, `.cmd`, `.msi`, `.vbs`, `.ps1`, `.scr` o `.com`, rutas con `../`, vacíos o dañados.
+- ✅ Barra de progreso real (`XMLHttpRequest`) y el formulario también funciona sin JavaScript.
+- ✅ Descarga con `res.download()` y el nombre original. No hace falta cuenta. Nunca se ejecuta nada del ZIP.
+- ✅ El servidor espera hasta 30 minutos por subida (conexiones lentas).
+- Falta: reemplazar el ZIP de un proyecto (se reemplaza y listo).
 
 **Sprint 5 · Administración y búsqueda**
-- Bandeja de pendientes para docentes y admin, con motivo de rechazo.
+- Moderación para docentes y admin: ocultar, destacar y eliminar proyectos ya publicados
+  (y, si se decide volver a la revisión previa, bandeja de pendientes con motivo de rechazo).
 - Filtros por materia, curso, año, turno, estado y tecnología + buscador por título y descripción.
 
 **Sprint 6 · Cierre**
@@ -132,7 +135,7 @@ Ver `database/schema.sql`.
 | Riesgo | Qué hacemos |
 |---|---|
 | El servidor de la escuela no permite instalar Node.js | Confirmarlo en el Sprint 1 con el Departamento TICS. Plan B: usar una PC de la escuela como servidor dentro de la red. |
-| Subir 250 MB por la red de la escuela tarda o se corta | Barra de progreso, mensaje claro si falla y prueba real en el Sprint 4. |
+| Subir 250 MB por la red de la escuela tarda o se corta | Barra de progreso real, aviso si se corta, 30 minutos de espera por subida. Falta probarlo en la red real de la escuela. |
 | ZIPs con archivos peligrosos | El ZIP no se descomprime ni se ejecuta, se guarda fuera de `public/` y se valida su contenido. |
 | Datos personales (DNI, emails) | Contraseñas encriptadas, DNI visible solo para el admin, `.env` fuera de GitHub. |
 | Falta de tiempo | Si un sprint se atrasa, lo primero que se recorta son los destacados y los filtros avanzados. |

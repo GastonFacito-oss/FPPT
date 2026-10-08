@@ -1,102 +1,124 @@
 <%- include('../partials/cabecera') %>
+<%
+  // Ayudas para completar el formulario con lo que ya había escrito el usuario
+  const v = function (campo) { return valores[campo] === undefined || valores[campo] === null ? '' : valores[campo]; };
+  const claseCampo = function (campo) { return 'campo' + (errores[campo] ? ' campo--error' : ''); };
+  const elegido = function (campo, valor) { return String(v(campo)) === String(valor) ? 'selected' : ''; };
+  const invalido = function (campo) { return errores[campo] ? 'aria-invalid="true" aria-describedby="' + campo + '-error"' : ''; };
+  const tecnologiasElegidas = (valores.tecnologias || []).map(Number);
+  const hayErrores = Object.keys(errores).length > 0;
+%>
 
 <section class="encabezado-pagina">
   <div class="contenedor contenedor--medio">
     <p class="sobretitulo">Subir proyecto</p>
     <h1>Guardá tu proyecto en FPPT</h1>
-    <p class="encabezado-pagina__texto">Completá los datos y adjuntá un ZIP con todos los archivos. Un docente lo revisa antes de publicarlo.</p>
+    <p class="encabezado-pagina__texto">Completá los datos y adjuntá un ZIP con todos los archivos. Apenas termine de subirse, aparece en el inicio.</p>
   </div>
 </section>
 
 <section class="seccion">
   <div class="contenedor contenedor--medio">
-    <div class="alerta alerta--aviso">
-      <strong>Vista de demostración.</strong> Podés completar el formulario y elegir un ZIP para ver cómo funciona,
-      pero todavía no se guarda nada ni se sube ningún archivo.
+    <div class="alerta alerta--error<%= hayErrores ? '' : ' oculto' %>" id="resultado" role="alert" tabindex="-1">
+      <%= hayErrores ? 'Revisá los datos marcados en rojo.' : '' %>
     </div>
 
-    <div class="alerta alerta--exito oculto" id="resultado" role="status" tabindex="-1"></div>
-
-    <form class="formulario formulario--ancho" id="form-subir" novalidate>
+    <form class="formulario formulario--ancho" id="form-subir" action="/subir" method="post" enctype="multipart/form-data" novalidate>
+      <%# El token va primero: el servidor lo revisa antes de recibir el archivo %>
       <input type="hidden" name="_csrf" value="<%= csrf %>">
 
       <fieldset class="bloque">
         <legend class="bloque__titulo">1. El proyecto</legend>
-        <div class="campo">
+        <div class="<%= claseCampo('titulo') %>">
           <label for="titulo">Nombre del proyecto</label>
-          <input id="titulo" name="titulo" type="text" maxlength="150" required>
+          <input id="titulo" name="titulo" type="text" maxlength="150" value="<%= v('titulo') %>" required <%- invalido('titulo') %>>
+          <%- include('../partials/error-campo', { id: 'titulo', mensaje: errores.titulo }) %>
         </div>
-        <div class="campo">
+        <div class="<%= claseCampo('descripcion_corta') %>">
           <label for="descripcion_corta">Descripción corta</label>
-          <input id="descripcion_corta" name="descripcion_corta" type="text" maxlength="200" required aria-describedby="contador-corta">
-          <small class="campo__ayuda" id="contador-corta">Es la que se ve en la tarjeta. <span data-contador>0</span>/200</small>
+          <input id="descripcion_corta" name="descripcion_corta" type="text" maxlength="200" value="<%= v('descripcion_corta') %>" required aria-describedby="contador-corta<%= errores.descripcion_corta ? ' descripcion_corta-error' : '' %>">
+          <small class="campo__ayuda" id="contador-corta">Es la que se ve en la tarjeta. <span data-contador><%= String(v('descripcion_corta')).length %></span>/200</small>
+          <%- include('../partials/error-campo', { id: 'descripcion_corta', mensaje: errores.descripcion_corta }) %>
         </div>
-        <div class="campo">
+        <div class="<%= claseCampo('descripcion') %>">
           <label for="descripcion">Descripción completa</label>
-          <textarea id="descripcion" name="descripcion" rows="5" required></textarea>
+          <textarea id="descripcion" name="descripcion" rows="5" maxlength="5000" required <%- invalido('descripcion') %>><%= v('descripcion') %></textarea>
           <small class="campo__ayuda">Qué hace, cómo se usa y qué aprendieron haciéndolo.</small>
+          <%- include('../partials/error-campo', { id: 'descripcion', mensaje: errores.descripcion }) %>
         </div>
       </fieldset>
 
       <fieldset class="bloque">
         <legend class="bloque__titulo">2. Curso y materia</legend>
         <div class="grilla-campos">
-          <div class="campo">
+          <div class="<%= claseCampo('materia') %>">
             <label for="materia">Materia</label>
-            <select id="materia" name="materia" required>
+            <select id="materia" name="materia" required <%- invalido('materia') %>>
               <option value="">Elegí…</option>
-              <option>Proyecto 1</option><option>Proyecto 2</option><option>Proyecto 3</option>
+              <% ['Proyecto 1', 'Proyecto 2', 'Proyecto 3'].forEach(function (m) { %>
+                <option <%= elegido('materia', m) %>><%= m %></option>
+              <% }) %>
             </select>
+            <%- include('../partials/error-campo', { id: 'materia', mensaje: errores.materia }) %>
           </div>
-          <div class="campo">
+          <div class="<%= claseCampo('curso') %>">
             <label for="curso">Curso</label>
-            <select id="curso" name="curso" required>
+            <select id="curso" name="curso" required <%- invalido('curso') %>>
               <option value="">Elegí…</option>
-              <% for (let c = 1; c <= 7; c++) { %><option value="<%= c %>"><%= c %>°</option><% } %>
+              <% for (let c = 1; c <= 7; c++) { %><option value="<%= c %>" <%= elegido('curso', c) %>><%= c %>°</option><% } %>
             </select>
+            <%- include('../partials/error-campo', { id: 'curso', mensaje: errores.curso }) %>
           </div>
-          <div class="campo">
+          <div class="<%= claseCampo('division') %>">
             <label for="division">División</label>
-            <input id="division" name="division" type="text" maxlength="10" placeholder="Ej: 2da" required>
+            <input id="division" name="division" type="text" maxlength="10" placeholder="Ej: 2da" value="<%= v('division') %>" required <%- invalido('division') %>>
+            <%- include('../partials/error-campo', { id: 'division', mensaje: errores.division }) %>
           </div>
-          <div class="campo">
+          <div class="<%= claseCampo('anio') %>">
             <label for="anio">Año</label>
-            <input id="anio" name="anio" type="number" min="2000" max="<%= anioActual %>" value="<%= anioActual %>" required>
+            <input id="anio" name="anio" type="number" min="2000" max="<%= anioActual %>" value="<%= v('anio') %>" required <%- invalido('anio') %>>
+            <%- include('../partials/error-campo', { id: 'anio', mensaje: errores.anio }) %>
           </div>
-          <div class="campo">
+          <div class="<%= claseCampo('turno') %>">
             <label for="turno">Turno</label>
-            <select id="turno" name="turno" required>
+            <select id="turno" name="turno" required <%- invalido('turno') %>>
               <option value="">Elegí…</option>
-              <option>Mañana</option><option>Tarde</option><option>Vespertino</option>
+              <% ['Mañana', 'Tarde', 'Vespertino'].forEach(function (t) { %>
+                <option <%= elegido('turno', t) %>><%= t %></option>
+              <% }) %>
             </select>
+            <%- include('../partials/error-campo', { id: 'turno', mensaje: errores.turno }) %>
           </div>
-          <div class="campo">
+          <div class="<%= claseCampo('estado') %>">
             <label for="estado">Estado</label>
-            <select id="estado" name="estado" required>
-              <option value="terminado">Terminado</option>
-              <option value="en_curso" selected>En curso</option>
-              <option value="abandonado">Abandonado</option>
+            <select id="estado" name="estado" required <%- invalido('estado') %>>
+              <option value="terminado" <%= elegido('estado', 'terminado') %>>Terminado</option>
+              <option value="en_curso" <%= elegido('estado', 'en_curso') %>>En curso</option>
+              <option value="abandonado" <%= elegido('estado', 'abandonado') %>>Abandonado</option>
             </select>
+            <%- include('../partials/error-campo', { id: 'estado', mensaje: errores.estado }) %>
           </div>
         </div>
       </fieldset>
 
       <fieldset class="bloque">
         <legend class="bloque__titulo">3. Equipo y tecnologías</legend>
-        <div class="campo">
+        <div class="<%= claseCampo('integrantes') %>">
           <label for="integrantes">Integrantes</label>
-          <textarea id="integrantes" name="integrantes" rows="4" placeholder="Un nombre por línea" required></textarea>
+          <textarea id="integrantes" name="integrantes" rows="4" placeholder="Un nombre por línea" required <%- invalido('integrantes') %>><%= v('integrantes') %></textarea>
+          <%- include('../partials/error-campo', { id: 'integrantes', mensaje: errores.integrantes }) %>
         </div>
-        <div class="campo">
+        <div class="<%= claseCampo('propietarios') %>">
           <label for="propietarios">Compañeros que también pueden editarlo <span class="texto-suave">(opcional)</span></label>
-          <input id="propietarios" name="propietarios" type="text" placeholder="email1@..., email2@...">
-          <small class="campo__ayuda">Tienen que tener cuenta en FPPT. Separá los emails con comas.</small>
+          <input id="propietarios" name="propietarios" type="text" placeholder="email1@..., email2@..." value="<%= v('propietarios') %>" aria-describedby="propietarios-ayuda<%= errores.propietarios ? ' propietarios-error' : '' %>">
+          <small class="campo__ayuda" id="propietarios-ayuda">Tienen que tener cuenta en FPPT. Separá los emails con comas.</small>
+          <%- include('../partials/error-campo', { id: 'propietarios', mensaje: errores.propietarios }) %>
         </div>
         <div class="campo">
           <span class="campo__etiqueta" id="tecnologias-titulo">Tecnologías usadas</span>
           <div class="casillas" role="group" aria-labelledby="tecnologias-titulo">
             <% tecnologias.forEach(function (t) { %>
-              <label class="casilla"><input type="checkbox" name="tecnologias" value="<%= t.id %>"> <%= t.nombre %></label>
+              <label class="casilla"><input type="checkbox" name="tecnologias" value="<%= t.id %>" <%= tecnologiasElegidas.includes(t.id) ? 'checked' : '' %>> <%= t.nombre %></label>
             <% }) %>
           </div>
         </div>
@@ -104,14 +126,14 @@
 
       <fieldset class="bloque">
         <legend class="bloque__titulo">4. Archivos</legend>
-        <div class="campo" id="campo-zip">
+        <div class="<%= claseCampo('zip') %>" id="campo-zip">
           <span class="campo__etiqueta">Archivo ZIP del proyecto</span>
           <label class="zona-zip" id="zona-zip" for="zip">
             <input class="zona-zip__input" id="zip" name="zip" type="file" accept=".zip,application/zip" aria-describedby="zip-ayuda zip-error">
             <span class="zona-zip__titulo">Arrastrá tu ZIP acá o <u>elegilo desde la computadora</u></span>
             <span class="zona-zip__ayuda" id="zip-ayuda">Un solo archivo .zip de hasta <%= zipMaxMb %> MB. Puede tener código, documentos, imágenes y .jar.</span>
           </label>
-          <small class="campo__error oculto" id="zip-error"></small>
+          <small class="campo__error<%= errores.zip ? '' : ' oculto' %>" id="zip-error"><%= errores.zip || '' %></small>
         </div>
 
         <div class="oculto" id="vista-zip">
@@ -122,7 +144,7 @@
             </div>
             <button class="boton boton--secundario boton--chico" type="button" id="zip-quitar">Quitar</button>
           </div>
-          <p class="texto-suave">Así se va a ver el contenido de tu ZIP:</p>
+          <p class="texto-suave" id="zip-vista-texto">Así se va a ver el contenido de tu ZIP:</p>
           <div class="arbol-contenedor" id="zip-arbol"></div>
         </div>
       </fieldset>

@@ -1,5 +1,6 @@
 // Lee la configuración del archivo .env y la deja en un solo objeto.
 // Así el resto del código nunca usa process.env directamente.
+const path = require('path');
 require('dotenv').config({ quiet: true });
 
 const config = {
@@ -19,6 +20,8 @@ const config = {
   sesionSecreto: process.env.SESION_SECRETO || 'cambiar-esta-clave-en-el-servidor',
   produccion: process.env.NODE_ENV === 'production',
   zipMaxMb: Number(process.env.ZIP_MAX_MB) || 250,
+  // Carpeta donde se guardan los ZIP subidos (fuera de "public": no se pueden abrir directo)
+  carpetaZips: path.join(__dirname, '..', '..', 'storage', 'zips'),
 };
 
 module.exports = config;

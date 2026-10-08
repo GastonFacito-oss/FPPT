@@ -4,16 +4,19 @@ const { probarConexion } = require('../config/db');
 const config = require('../config');
 
 async function inicio(req, res) {
-  let proyectos = [];
+  let recientes = [];
+  let destacados = [];
   let baseDisponible = true;
   try {
-    proyectos = await proyectoModel.listarParaInicio(6);
+    // Los últimos subidos van primero: cada proyecto nuevo aparece arriba de todo
+    recientes = await proyectoModel.listarRecientes(6);
+    destacados = await proyectoModel.listarDestacados(recientes.map((p) => p.id), 3);
   } catch (err) {
     // Si la base no está encendida, la página igual se muestra con un aviso.
     console.error('No se pudo leer la base de datos:', err.message);
     baseDisponible = false;
   }
-  res.render('paginas/inicio', { titulo: 'Inicio', proyectos, baseDisponible });
+  res.render('paginas/inicio', { titulo: 'Inicio', recientes, destacados, baseDisponible });
 }
 
 function sobre(req, res) {
@@ -35,11 +38,4 @@ async function salud(req, res) {
   res.status(baseDatos ? 200 : 503).json({ servidor: 'ok', baseDatos: baseDatos ? 'ok' : 'sin conexión' });
 }
 
-// Devuelve un controlador que muestra "en construcción" para secciones futuras.
-function enConstruccion(nombre, sprint) {
-  return (req, res) => {
-    res.render('paginas/en-construccion', { titulo: nombre, nombre, sprint });
-  };
-}
-
-module.exports = { inicio, sobre, ayuda, componentes, salud, enConstruccion };
+module.exports = { inicio, sobre, ayuda, componentes, salud };
