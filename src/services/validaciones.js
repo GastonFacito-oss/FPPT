@@ -119,4 +119,33 @@ function validarProyecto(datos) {
   return errores;
 }
 
-module.exports = { limpiarRegistro, validarRegistro, limpiarProyecto, validarProyecto, MATERIAS, TURNOS, ESTADOS };
+// ---------- Búsqueda ----------
+
+// Lee la búsqueda y los filtros de la dirección (/proyectos?q=...&materia=...).
+// Lo que no es válido se ignora: así una dirección rara nunca rompe la página.
+function limpiarBusqueda(query) {
+  const q = texto(query.q).replace(/\s+/g, ' ').slice(0, 100);
+  const materia = MATERIAS.includes(texto(query.materia)) ? texto(query.materia) : '';
+  const curso = Number(texto(query.curso));
+  const anio = Number(texto(query.anio));
+  const tecnologia = Number(texto(query.tecnologia));
+  // Cada palabra tiene que aparecer en algún lado (como máximo 6 palabras).
+  // Las letras sueltas ("a", "y") se ignoran si hay otras palabras: aparecen en casi todo.
+  // Los números sueltos sí cuentan (por ejemplo, "proyecto 2").
+  const letraSuelta = (p) => /^\p{L}$/u.test(p);
+  let palabras = q.split(' ').filter(Boolean).slice(0, 6);
+  if (palabras.some((p) => !letraSuelta(p))) palabras = palabras.filter((p) => !letraSuelta(p));
+  return {
+    q,
+    palabras,
+    materia,
+    curso: Number.isInteger(curso) && curso >= 1 && curso <= 7 ? curso : '',
+    anio: Number.isInteger(anio) && anio >= 2000 && anio <= 2100 ? anio : '',
+    tecnologia: Number.isInteger(tecnologia) && tecnologia > 0 ? tecnologia : '',
+  };
+}
+
+module.exports = {
+  limpiarRegistro, validarRegistro, limpiarProyecto, validarProyecto, limpiarBusqueda,
+  MATERIAS, TURNOS, ESTADOS,
+};

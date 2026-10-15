@@ -1,18 +1,78 @@
 <%- include('../partials/cabecera') %>
+<%
+  const elegido = function (valor, actual) { return String(valor) === String(actual) ? 'selected' : ''; };
+  const plural = function (n) { return n === 1 ? 'proyecto' : 'proyectos'; };
+%>
 
 <section class="encabezado-pagina">
   <div class="contenedor">
     <p class="sobretitulo">Proyectos</p>
-    <h1>Todos los proyectos</h1>
-    <p class="encabezado-pagina__texto">
-      <%= total %> <%= total === 1 ? 'proyecto publicado' : 'proyectos publicados' %>, del más nuevo al más viejo.
-    </p>
+    <h1><%= hayFiltros ? 'Buscar proyectos' : 'Todos los proyectos' %></h1>
+
+    <form class="busqueda" action="/proyectos" method="get" role="search" aria-label="Buscar proyectos">
+      <div class="busqueda__principal">
+        <label class="solo-lectores" for="q">Buscar por nombre, descripción, integrante o tecnología</label>
+        <input class="busqueda__texto" id="q" name="q" type="search" maxlength="100"
+               value="<%= filtros.q %>" placeholder="Nombre, descripción, integrante o tecnología…" autocomplete="off">
+        <button class="boton boton--primario" type="submit">Buscar</button>
+      </div>
+
+      <div class="busqueda__filtros">
+        <div class="filtro">
+          <label for="filtro-materia">Materia</label>
+          <select id="filtro-materia" name="materia" data-enviar-al-cambiar>
+            <option value="">Todas</option>
+            <% ['Proyecto 1', 'Proyecto 2', 'Proyecto 3'].forEach(function (m) { %>
+              <option <%= elegido(m, filtros.materia) %>><%= m %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="filtro">
+          <label for="filtro-curso">Curso</label>
+          <select id="filtro-curso" name="curso" data-enviar-al-cambiar>
+            <option value="">Todos</option>
+            <% for (let c = 1; c <= 7; c++) { %><option value="<%= c %>" <%= elegido(c, filtros.curso) %>><%= c %>°</option><% } %>
+          </select>
+        </div>
+        <div class="filtro">
+          <label for="filtro-anio">Año</label>
+          <select id="filtro-anio" name="anio" data-enviar-al-cambiar>
+            <option value="">Todos</option>
+            <% anios.forEach(function (a) { %><option value="<%= a %>" <%= elegido(a, filtros.anio) %>><%= a %></option><% }) %>
+          </select>
+        </div>
+        <div class="filtro">
+          <label for="filtro-tecnologia">Tecnología</label>
+          <select id="filtro-tecnologia" name="tecnologia" data-enviar-al-cambiar>
+            <option value="">Todas</option>
+            <% tecnologias.forEach(function (t) { %><option value="<%= t.id %>" <%= elegido(t.id, filtros.tecnologia) %>><%= t.nombre %></option><% }) %>
+          </select>
+        </div>
+      </div>
+    </form>
   </div>
 </section>
 
 <section class="seccion">
   <div class="contenedor">
-    <% if (proyectos.length === 0) { %>
+    <div class="resultados__resumen" role="status">
+      <p>
+        <% if (hayFiltros) { %>
+          <strong><%= total %></strong> <%= plural(total) %> <%= total === 1 ? 'encontrado' : 'encontrados' %><% if (filtros.q) { %> para “<%= filtros.q %>”<% } %>
+        <% } else { %>
+          <strong><%= total %></strong> <%= plural(total) %> <%= total === 1 ? 'publicado' : 'publicados' %>, del más nuevo al más viejo
+        <% } %>
+      </p>
+      <% if (hayFiltros) { %><a class="enlace-limpiar" href="/proyectos">Limpiar búsqueda</a><% } %>
+    </div>
+
+    <% if (proyectos.length === 0 && hayFiltros) { %>
+      <div class="vacio">
+        <p><strong>No encontramos proyectos con esa búsqueda.</strong></p>
+        <p class="texto-suave">Probá con otras palabras, revisá cómo están escritas o sacá algún filtro.</p>
+        <a class="boton boton--primario" href="/proyectos">Ver todos los proyectos</a>
+      </div>
+    <% } else if (proyectos.length === 0) { %>
       <div class="vacio">
         <p>Todavía no hay proyectos publicados.</p>
         <a class="boton boton--primario" href="/subir">Subí el primero</a>
@@ -27,11 +87,11 @@
       <% if (paginas > 1) { %>
         <nav class="paginacion" aria-label="Páginas">
           <% if (pagina > 1) { %>
-            <a class="boton boton--secundario boton--chico" href="/proyectos?pagina=<%= pagina - 1 %>">Anteriores</a>
+            <a class="boton boton--secundario boton--chico" href="<%= urlPagina(pagina - 1) %>">Anteriores</a>
           <% } %>
           <span class="paginacion__estado">Página <%= pagina %> de <%= paginas %></span>
           <% if (pagina < paginas) { %>
-            <a class="boton boton--secundario boton--chico" href="/proyectos?pagina=<%= pagina + 1 %>">Siguientes</a>
+            <a class="boton boton--secundario boton--chico" href="<%= urlPagina(pagina + 1) %>">Siguientes</a>
           <% } %>
         </nav>
       <% } %>

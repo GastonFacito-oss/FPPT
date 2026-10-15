@@ -3,7 +3,7 @@ const path = require('path');
 const proyectoModel = require('../models/proyectoModel');
 const usuarioModel = require('../models/usuarioModel');
 const { obtenerDemo } = require('../data/demo-archivos');
-const { limpiarProyecto, validarProyecto } = require('../services/validaciones');
+const { limpiarProyecto, validarProyecto, limpiarBusqueda } = require('../services/validaciones');
 const { analizarZip, contarArchivos, ErrorZip } = require('../services/zip');
 const { borrarArchivo } = require('../middlewares/subida');
 const { avisar, esPedidoJs } = require('../middlewares/sesion');
@@ -11,13 +11,40 @@ const config = require('../config');
 
 const POR_PAGINA = 12;
 
-// /proyectos: todos los proyectos publicados, los más nuevos primero
+// /proyectos: todos los proyectos publicados (los más nuevos primero),
+// o los que coinciden con la búsqueda y los filtros: /proyectos?q=trivia&materia=Proyecto+1
 async function listar(req, res) {
+  const filtros = limpiarBusqueda(req.query);
   const pagina = Math.max(1, parseInt(req.query.pagina, 10) || 1);
-  const { proyectos, total } = await proyectoModel.listarPagina(pagina, POR_PAGINA);
+
+  const [{ proyectos, total }, tecnologias, anios] = await Promise.all([
+    proyectoModel.buscar(filtros, pagina, POR_PAGINA),
+    proyectoModel.listarTecnologias(),
+    proyectoModel.listarAnios(),
+  ]);
+
+  // Dirección de una página de resultados, conservando la búsqueda y los filtros
+  const activos = {};
+  for (const clave of ['q', 'materia', 'curso', 'anio', 'tecnologia']) {
+    if (filtros[clave] !== '') activos[clave] = filtros[clave];
+  }
+  const urlPagina = (n) => '/proyectos?' + new URLSearchParams({ ...activos, ...(n > 1 ? { pagina: n } : {}) });
+
   const paginas = Math.max(1, Math.ceil(total / POR_PAGINA));
-  if (pagina > paginas) return res.redirect(`/proyectos?pagina=${paginas}`);
-  res.render('paginas/proyectos', { titulo: 'Proyectos', proyectos, total, pagina, paginas });
+  if (pagina > paginas) return res.redirect(urlPagina(paginas));
+
+  res.render('paginas/proyectos', {
+    titulo: filtros.q ? `Buscar: ${filtros.q}` : 'Proyectos',
+    proyectos,
+    total,
+    pagina,
+    paginas,
+    urlPagina,
+    filtros,
+    hayFiltros: Object.keys(activos).length > 0,
+    tecnologias,
+    anios,
+  });
 }
 
 async function detalle(req, res, next) {

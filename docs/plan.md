@@ -74,7 +74,7 @@ Ver `database/schema.sql`.
 | **2** | 7/10 – 13/10 | Registro (Gmail escolar + DNI), login, logout, sesiones y permisos por rol | ✅ Listo (adelantado). Falta: dominio del Gmail escolar |
 | **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | 🟡 Alta, muro, lista con páginas, detalle y propietarios ✅ (adelantado). Falta: editar y eliminar |
 | **4** | 21/10 – 27/10 | Subida del ZIP (250 MB) con barra de progreso, árbol de carpetas, reemplazo y descarga | 🟡 Subida, árbol y descarga ✅ (adelantado). Falta: reemplazar el ZIP |
-| **5** | 28/10 – 3/11 | Panel de admin y docentes (aprobar, destacar, usuarios), búsqueda y filtros, Mis proyectos | Pendiente |
+| **5** | 28/10 – 3/11 | Panel de admin y docentes (aprobar, destacar, usuarios), búsqueda y filtros, Mis proyectos | 🟡 Búsqueda y filtros ✅ (adelantado). Falta: panel y Mis proyectos |
 | **6** | 4/11 – 10/11 | Pruebas con 5 usuarios, correcciones, manual de usuario, instalación en el servidor y backup | Pendiente |
 | **Entrega** | **11/11** | Versión `v1.0` | |
 
@@ -109,10 +109,16 @@ Ver `database/schema.sql`.
 - ✅ El servidor espera hasta 30 minutos por subida (conexiones lentas).
 - Falta: reemplazar el ZIP de un proyecto (se reemplaza y listo).
 
-**Sprint 5 · Administración y búsqueda**
+**Sprint 5 · Administración y búsqueda** (búsqueda ✅)
+- ✅ Buscador en la cabecera de todas las páginas y en `/proyectos`. Cada palabra tiene que aparecer en
+  el nombre, las descripciones, la materia, los integrantes o las tecnologías (un año de 4 números
+  también busca por año). No distingue mayúsculas ni tildes. Primero salen los que tienen la búsqueda
+  en el nombre.
+- ✅ Filtros por materia, curso, año y tecnología, que se combinan con el texto. La dirección guarda la
+  búsqueda (`/proyectos?q=trivia&curso=4`), así se puede compartir, y la paginación la conserva.
 - Moderación para docentes y admin: ocultar, destacar y eliminar proyectos ya publicados
   (y, si se decide volver a la revisión previa, bandeja de pendientes con motivo de rechazo).
-- Filtros por materia, curso, año, turno, estado y tecnología + buscador por título y descripción.
+- Pendiente (opcional): filtros por turno y estado.
 
 **Sprint 6 · Cierre**
 - Pruebas de uso con 5 personas externas al equipo (las elige el equipo).

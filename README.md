@@ -69,7 +69,7 @@ En <http://localhost:3000/salud> se ve si el servidor y la base de datos están 
 | Dirección | Qué hay |
 |---|---|
 | `/` | Inicio: los proyectos subidos más recientes primero, y los destacados |
-| `/proyectos` | Todos los proyectos, de a 12 por página |
+| `/proyectos` | Todos los proyectos, de a 12 por página, con **buscador** y filtros por materia, curso, año y tecnología (también se puede buscar desde la cabecera de cualquier página) |
 | `/proyectos/1` y `/proyectos/2` | Proyectos **de ejemplo**: se ve el árbol de archivos pero no se pueden descargar |
 | `/subir` | Subir un proyecto con su ZIP (hay que iniciar sesión). Al terminar aparece primero en el Inicio y se puede descargar |
 | `/ingresar` y `/registro` | Inicio de sesión y creación de cuenta (funcionan de verdad) |

@@ -32,6 +32,15 @@
       </a>
       <button class="menu-boton" type="button" aria-expanded="false" aria-controls="menu-principal">Menú</button>
       <nav class="navegacion" id="menu-principal" aria-label="Principal">
+        <% if (rutaActual !== '/proyectos') { %>
+          <%# En /proyectos no hace falta: la página tiene su propio buscador con filtros %>
+          <form class="buscador" action="/proyectos" method="get" role="search" aria-label="Buscar proyectos">
+            <label class="solo-lectores" for="buscador-cabecera">Buscar proyectos</label>
+            <input class="buscador__texto" id="buscador-cabecera" name="q" type="search" maxlength="100"
+                   placeholder="Buscar proyectos…" autocomplete="off">
+            <button class="buscador__boton" type="submit">Buscar</button>
+          </form>
+        <% } %>
         <ul class="navegacion__lista">
           <% enlaces.forEach(function (e) { %>
             <li><a class="navegacion__enlace" href="<%= e.url %>" <%- rutaActual === e.url ? 'aria-current="page"' : '' %>><%= e.texto %></a></li>

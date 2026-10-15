@@ -29,20 +29,68 @@ async function listarDestacados(excluirIds = [], limite = 3) {
   );
 }
 
-// Todos los proyectos publicados, de a "porPagina"
-async function listarPagina(pagina = 1, porPagina = 12) {
+// Busca entre los proyectos publicados, de a "porPagina".
+// filtros = { palabras, q, materia, curso, anio, tecnologia } (ver limpiarBusqueda)
+// Sin filtros, devuelve todos los proyectos, los más nuevos primero.
+async function buscar(filtros, pagina = 1, porPagina = 12) {
+  const condiciones = ["p.estado_revision = 'aprobado'"];
+  const parametros = [];
+
+  // Cada palabra tiene que aparecer en el nombre, las descripciones, la materia,
+  // los integrantes o las tecnologías. MySQL no distingue mayúsculas ni tildes.
+  // Si la palabra es un año (4 números), también se busca por año.
+  for (const palabra of filtros.palabras) {
+    const patron = '%' + escaparLike(palabra) + '%';
+    const esAnio = /^\d{4}$/.test(palabra);
+    condiciones.push(`(
+      p.titulo LIKE ? ESCAPE '!' OR p.descripcion_corta LIKE ? ESCAPE '!' OR p.descripcion LIKE ? ESCAPE '!'
+      OR p.materia LIKE ? ESCAPE '!'
+      OR EXISTS (SELECT 1 FROM proyecto_integrantes i
+                  WHERE i.proyecto_id = p.id AND i.nombre LIKE ? ESCAPE '!')
+      OR EXISTS (SELECT 1 FROM proyecto_tecnologias pt JOIN tecnologias t ON t.id = pt.tecnologia_id
+                  WHERE pt.proyecto_id = p.id AND t.nombre LIKE ? ESCAPE '!')
+      ${esAnio ? 'OR p.anio = ?' : ''}
+    )`);
+    parametros.push(patron, patron, patron, patron, patron, patron);
+    if (esAnio) parametros.push(Number(palabra));
+  }
+  if (filtros.materia) { condiciones.push('p.materia = ?'); parametros.push(filtros.materia); }
+  if (filtros.curso) { condiciones.push('p.curso = ?'); parametros.push(filtros.curso); }
+  if (filtros.anio) { condiciones.push('p.anio = ?'); parametros.push(filtros.anio); }
+  if (filtros.tecnologia) {
+    condiciones.push('EXISTS (SELECT 1 FROM proyecto_tecnologias pt WHERE pt.proyecto_id = p.id AND pt.tecnologia_id = ?)');
+    parametros.push(filtros.tecnologia);
+  }
+  const donde = condiciones.join(' AND ');
+
+  // Primero los que tienen la búsqueda completa en el nombre; después, los más nuevos
+  const enTitulo = '%' + escaparLike(filtros.q || '') + '%';
   const desde = (Number(pagina) - 1) * Number(porPagina);
   const [proyectos, [{ total }]] = await Promise.all([
     consultar(
       `SELECT ${COLUMNAS_TARJETA}
-         FROM proyectos
-        WHERE estado_revision = 'aprobado'
-        ORDER BY creado DESC, id DESC
-        LIMIT ${Number(porPagina)} OFFSET ${desde}`
+         FROM proyectos p
+        WHERE ${donde}
+        ORDER BY (p.titulo LIKE ? ESCAPE '!') DESC, p.creado DESC, p.id DESC
+        LIMIT ${Number(porPagina)} OFFSET ${desde}`,
+      [...parametros, enTitulo]
     ),
-    consultar(`SELECT COUNT(*) AS total FROM proyectos WHERE estado_revision = 'aprobado'`),
+    consultar(`SELECT COUNT(*) AS total FROM proyectos p WHERE ${donde}`, parametros),
   ]);
   return { proyectos, total: Number(total) };
+}
+
+// En LIKE, "%" y "_" son comodines: si el usuario los escribe, se buscan tal cual
+function escaparLike(texto) {
+  return texto.replace(/[!%_]/g, '!$&');
+}
+
+// Años que tienen proyectos publicados (para el filtro), del más nuevo al más viejo
+async function listarAnios() {
+  const filas = await consultar(
+    `SELECT DISTINCT anio FROM proyectos WHERE estado_revision = 'aprobado' ORDER BY anio DESC`
+  );
+  return filas.map((f) => f.anio);
 }
 
 // Un proyecto publicado con sus integrantes, tecnologías y ZIP. Devuelve null si no existe.
@@ -139,7 +187,8 @@ async function crear({ datos, creadorId, propietariosIds, zip }) {
 module.exports = {
   listarRecientes,
   listarDestacados,
-  listarPagina,
+  buscar,
+  listarAnios,
   obtenerDetalle,
   obtenerZip,
   listarTecnologias,
