@@ -1,0 +1,38 @@
+<%#
+  Árbol de carpetas y archivos (se llama a sí mismo para las subcarpetas).
+  Recibe: nodos = [{ nombre, hijos: [...] } | { nombre, tamanio }], nivel (0 = raíz)
+%>
+<%
+  const formatearTamanio = function (bytes) {
+    if (bytes >= 1048576) return (bytes / 1048576).toFixed(1).replace('.', ',') + ' MB';
+    if (bytes >= 1024) return Math.round(bytes / 1024) + ' KB';
+    return bytes + ' B';
+  };
+  const extension = function (nombre) {
+    const partes = nombre.split('.');
+    return partes.length > 1 ? partes.pop().toLowerCase() : '';
+  };
+  const ordenados = nodos.slice().sort(function (a, b) {
+    // Primero las carpetas, después los archivos, cada grupo en orden alfabético
+    if (!!a.hijos !== !!b.hijos) return a.hijos ? -1 : 1;
+    return a.nombre.localeCompare(b.nombre, 'es');
+  });
+%>
+<ul class="arbol<%= nivel === 0 ? ' arbol--raiz' : '' %>">
+  <% ordenados.forEach(function (nodo) { %>
+    <% if (nodo.hijos) { %>
+      <li class="arbol__item">
+        <details <%= nivel < 1 ? 'open' : '' %>>
+          <summary class="arbol__carpeta"><span class="arbol__nombre"><%= nodo.nombre %>/</span></summary>
+          <%- include('arbol', { nodos: nodo.hijos, nivel: nivel + 1 }) %>
+        </details>
+      </li>
+    <% } else { %>
+      <li class="arbol__item arbol__archivo">
+        <span class="arbol__nombre"><%= nodo.nombre %></span>
+        <span class="arbol__ext"><%= extension(nodo.nombre) %></span>
+        <span class="arbol__tamanio"><%= formatearTamanio(nodo.tamanio) %></span>
+      </li>
+    <% } %>
+  <% }) %>
+</ul>

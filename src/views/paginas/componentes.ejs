@@ -1,0 +1,103 @@
+<%- include('../partials/cabecera') %>
+<%
+  const colores = [
+    { nombre: 'Azul FPPT', variable: '--azul', hex: '#326080', uso: 'Botones, enlaces, títulos (30%)' },
+    { nombre: 'Azul noche', variable: '--azul-noche', hex: '#123C5C', uso: 'Logo, pie de página, texto destacado' },
+    { nombre: 'Naranja', variable: '--naranja', hex: '#E8871E', uso: 'Acento: destacados y detalles (10%)' },
+    { nombre: 'Celeste', variable: '--celeste', hex: '#E8F3FA', uso: 'Fondos de sección (60%)' },
+    { nombre: 'Crema', variable: '--crema', hex: '#FFF1E7', uso: 'Fondos cálidos y avisos (60%)' },
+    { nombre: 'Tinta', variable: '--tinta', hex: '#1B2733', uso: 'Texto principal' },
+  ];
+  const proyectoEjemplo = { id: 0, titulo: 'Gestor de biblioteca', descripcion_corta: 'Sistema para registrar préstamos y devoluciones de libros de la escuela.', materia: 'Proyecto 2', curso: 5, division: '2da', anio: 2025, destacado: 1 };
+%>
+
+<section class="encabezado-pagina">
+  <div class="contenedor">
+    <p class="sobretitulo">Guía para el equipo</p>
+    <h1>Sistema de diseño</h1>
+    <p class="encabezado-pagina__texto">Colores, tipografía y componentes que usa todo el sitio.</p>
+  </div>
+</section>
+
+<section class="seccion">
+  <div class="contenedor guia">
+    <h2>Colores · regla 60-30-10</h2>
+    <div class="muestras">
+      <% colores.forEach(function (c) { %>
+        <div class="muestra">
+          <span class="muestra__color" style="background: var(<%= c.variable %>)"></span>
+          <strong><%= c.nombre %></strong>
+          <code><%= c.hex %></code>
+          <small><%= c.uso %></small>
+        </div>
+      <% }) %>
+    </div>
+
+    <h2>Tipografía · Plus Jakarta Sans</h2>
+    <div class="tipos">
+      <h1>Título 1 · 800</h1>
+      <h2>Título 2 · 700</h2>
+      <h3>Título 3 · 700</h3>
+      <p>Texto de párrafo · 400. Los proyectos de la escuela, guardados para siempre.</p>
+      <p class="texto-suave">Texto secundario · 400, color suave.</p>
+    </div>
+
+    <h2>Botones</h2>
+    <div class="grupo-botones">
+      <button class="boton boton--primario" type="button">Primario</button>
+      <button class="boton boton--secundario" type="button">Secundario</button>
+      <button class="boton boton--acento" type="button">Guardar proyecto</button>
+      <button class="boton boton--peligro" type="button">Eliminar</button>
+      <button class="boton boton--primario" type="button" disabled>Deshabilitado</button>
+    </div>
+
+    <h2>Formulario</h2>
+    <form class="formulario" onsubmit="return false">
+      <div class="campo">
+        <label for="ej-email">Gmail escolar</label>
+        <input id="ej-email" type="email" placeholder="nombre@<%= 'ejemplo.edu.ar' %>">
+        <small class="campo__ayuda">Solo se aceptan correos de la escuela.</small>
+      </div>
+      <div class="campo campo--error">
+        <label for="ej-dni">DNI</label>
+        <input id="ej-dni" type="text" value="12a" aria-invalid="true" aria-describedby="ej-dni-error">
+        <small class="campo__error" id="ej-dni-error">El DNI solo puede tener números.</small>
+      </div>
+      <div class="campo">
+        <label for="ej-materia">Materia</label>
+        <select id="ej-materia"><option>Proyecto 1</option><option>Proyecto 2</option><option>Proyecto 3</option></select>
+      </div>
+      <div class="campo">
+        <label for="ej-desc">Descripción</label>
+        <textarea id="ej-desc" rows="3"></textarea>
+      </div>
+    </form>
+
+    <h2>Alertas</h2>
+    <div class="pila">
+      <div class="alerta alerta--exito">Tu proyecto se subió correctamente. Queda pendiente de revisión.</div>
+      <div class="alerta alerta--error">El archivo supera los 250 MB.</div>
+      <div class="alerta alerta--aviso">Tu proyecto está pendiente de aprobación.</div>
+    </div>
+
+    <h2>Barra de progreso</h2>
+    <div class="progreso" role="progressbar" aria-valuenow="64" aria-valuemin="0" aria-valuemax="100" aria-label="Subiendo archivo">
+      <div class="progreso__barra" style="width: 64%"></div>
+    </div>
+
+    <h2>Etiquetas de estado</h2>
+    <div class="grupo-botones">
+      <span class="etiqueta">Proyecto 1</span>
+      <span class="etiqueta etiqueta--exito">Terminado</span>
+      <span class="etiqueta etiqueta--aviso">En curso</span>
+      <span class="etiqueta etiqueta--gris">Abandonado</span>
+    </div>
+
+    <h2>Tarjeta de proyecto</h2>
+    <div class="grilla-tarjetas">
+      <%- include('../partials/tarjeta-proyecto', { proyecto: proyectoEjemplo }) %>
+    </div>
+  </div>
+</section>
+
+<%- include('../partials/pie') %>
