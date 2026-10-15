@@ -1,9 +1,9 @@
 // Consultas a la base de datos relacionadas con proyectos.
-const { consultar, transaccion } = require('../config/db');
+const { pool, consultar } = require('../config/db');
 
 // Columnas que necesita cada tarjeta. "es_nuevo" = subido en los últimos 7 días.
 const COLUMNAS_TARJETA = `id, titulo, descripcion_corta, materia, curso, division, anio, destacado,
-  creado >= NOW() - INTERVAL '7 days' AS es_nuevo`;
+  creado >= NOW() - INTERVAL 7 DAY AS es_nuevo`;
 
 // Los últimos proyectos publicados: el más nuevo primero.
 // Así, cada proyecto que se sube aparece arriba de todo en el Inicio.
@@ -13,34 +13,32 @@ async function listarRecientes(limite = 6) {
        FROM proyectos
       WHERE estado_revision = 'aprobado'
       ORDER BY creado DESC, id DESC
-      LIMIT $1`,
-    [limite]
+      LIMIT ${Number(limite)}`
   );
 }
 
 // Destacados que no estén ya en la lista de recientes (para no repetir tarjetas)
 async function listarDestacados(excluirIds = [], limite = 3) {
+  const excluir = excluirIds.length ? `AND id NOT IN (${excluirIds.map(Number).join(', ')})` : '';
   return consultar(
     `SELECT ${COLUMNAS_TARJETA}
        FROM proyectos
-      WHERE estado_revision = 'aprobado' AND destacado AND NOT (id = ANY($1::int[]))
+      WHERE estado_revision = 'aprobado' AND destacado = 1 ${excluir}
       ORDER BY creado DESC
-      LIMIT $2`,
-    [excluirIds, limite]
+      LIMIT ${Number(limite)}`
   );
 }
 
 // Todos los proyectos publicados, de a "porPagina"
 async function listarPagina(pagina = 1, porPagina = 12) {
-  const desde = (pagina - 1) * porPagina;
+  const desde = (Number(pagina) - 1) * Number(porPagina);
   const [proyectos, [{ total }]] = await Promise.all([
     consultar(
       `SELECT ${COLUMNAS_TARJETA}
          FROM proyectos
         WHERE estado_revision = 'aprobado'
         ORDER BY creado DESC, id DESC
-        LIMIT $1 OFFSET $2`,
-      [porPagina, desde]
+        LIMIT ${Number(porPagina)} OFFSET ${desde}`
     ),
     consultar(`SELECT COUNT(*) AS total FROM proyectos WHERE estado_revision = 'aprobado'`),
   ]);
@@ -53,18 +51,18 @@ async function obtenerDetalle(id) {
     `SELECT id, titulo, descripcion_corta, descripcion, curso, division, anio, turno,
             materia, estado, destacado, creado, actualizado
        FROM proyectos
-      WHERE id = $1 AND estado_revision = 'aprobado'`,
+      WHERE id = ? AND estado_revision = 'aprobado'`,
     [id]
   );
   if (filas.length === 0) return null;
 
   const proyecto = filas[0];
   const [integrantes, tecnologias, zip] = await Promise.all([
-    consultar('SELECT nombre FROM proyecto_integrantes WHERE proyecto_id = $1 ORDER BY id', [id]),
+    consultar('SELECT nombre FROM proyecto_integrantes WHERE proyecto_id = ? ORDER BY id', [id]),
     consultar(
       `SELECT t.nombre FROM tecnologias t
          JOIN proyecto_tecnologias pt ON pt.tecnologia_id = t.id
-        WHERE pt.proyecto_id = $1 ORDER BY t.nombre`,
+        WHERE pt.proyecto_id = ? ORDER BY t.nombre`,
       [id]
     ),
     obtenerZip(id),
@@ -78,15 +76,16 @@ async function obtenerDetalle(id) {
 // Datos del ZIP de un proyecto publicado (o null si no tiene)
 async function obtenerZip(proyectoId) {
   const filas = await consultar(
-    `SELECT z.nombre_original, z.ruta, z.tamanio, z.arbol_json AS arbol, z.subido
+    `SELECT z.nombre_original, z.ruta, z.tamanio, z.arbol_json, z.subido
        FROM archivos_zip z
        JOIN proyectos p ON p.id = z.proyecto_id
-      WHERE z.proyecto_id = $1 AND p.estado_revision = 'aprobado'`,
+      WHERE z.proyecto_id = ? AND p.estado_revision = 'aprobado'`,
     [proyectoId]
   );
   if (filas.length === 0) return null;
   const zip = filas[0];
-  zip.tamanio = Number(zip.tamanio); // BIGINT llega como texto
+  zip.arbol = JSON.parse(zip.arbol_json);
+  delete zip.arbol_json;
   return zip;
 }
 
@@ -97,36 +96,44 @@ async function listarTecnologias() {
 // Guarda un proyecto nuevo con todo lo relacionado.
 // Usa una transacción: o se guarda todo, o no se guarda nada.
 async function crear({ datos, creadorId, propietariosIds, zip }) {
-  return transaccion(async (cliente) => {
+  const conexion = await pool.getConnection();
+  try {
+    await conexion.beginTransaction();
+
     // Por ahora se publica al instante ('aprobado'). Cuando exista el panel de
     // docentes se puede guardar como 'pendiente' para que lo revisen antes.
-    const { rows } = await cliente.query(
+    const [resultado] = await conexion.execute(
       `INSERT INTO proyectos
          (titulo, descripcion_corta, descripcion, curso, division, anio, turno, materia, estado, estado_revision, creado_por)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'aprobado', $10)
-       RETURNING id`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'aprobado', ?)`,
       [datos.titulo, datos.descripcion_corta, datos.descripcion, datos.curso, datos.division,
         datos.anio, datos.turno, datos.materia, datos.estado, creadorId]
     );
-    const id = rows[0].id;
+    const id = resultado.insertId;
 
     for (const usuarioId of new Set([creadorId, ...propietariosIds])) {
-      await cliente.query('INSERT INTO proyecto_propietarios (proyecto_id, usuario_id) VALUES ($1, $2)', [id, usuarioId]);
+      await conexion.execute('INSERT INTO proyecto_propietarios (proyecto_id, usuario_id) VALUES (?, ?)', [id, usuarioId]);
     }
     for (const nombre of datos.integrantes) {
-      await cliente.query('INSERT INTO proyecto_integrantes (proyecto_id, nombre) VALUES ($1, $2)', [id, nombre]);
+      await conexion.execute('INSERT INTO proyecto_integrantes (proyecto_id, nombre) VALUES (?, ?)', [id, nombre]);
     }
     for (const tecnologiaId of datos.tecnologias) {
-      await cliente.query('INSERT INTO proyecto_tecnologias (proyecto_id, tecnologia_id) VALUES ($1, $2)', [id, tecnologiaId]);
+      await conexion.execute('INSERT INTO proyecto_tecnologias (proyecto_id, tecnologia_id) VALUES (?, ?)', [id, tecnologiaId]);
     }
-    await cliente.query(
+    await conexion.execute(
       `INSERT INTO archivos_zip (proyecto_id, nombre_original, ruta, tamanio, arbol_json, subido_por)
-       VALUES ($1, $2, $3, $4, $5, $6)`,
-      // JSON.stringify: el árbol se guarda como JSON (si no, pg lo convertiría en un array de PostgreSQL)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [id, zip.nombreOriginal, zip.ruta, zip.tamanio, JSON.stringify(zip.arbol), creadorId]
     );
+
+    await conexion.commit();
     return id;
-  });
+  } catch (err) {
+    await conexion.rollback();
+    throw err;
+  } finally {
+    conexion.release();
+  }
 }
 
 module.exports = {

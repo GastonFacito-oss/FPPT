@@ -5,6 +5,3 @@ storage/zips/*
 *.log
 .DS_Store
 Thumbs.db
-
-# Certificado de Supabase (opcional)
-certificados/

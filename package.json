@@ -7,8 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "db:crear": "node database/crear-base.js",
-    "db:reiniciar": "node database/crear-base.js --reiniciar"
+    "db:crear": "node database/crear-base.js"
   },
   "engines": {
     "node": ">=20"
@@ -21,7 +20,7 @@
     "express": "^5.2.1",
     "express-session": "^1.19.0",
     "multer": "^2.4.0",
-    "pg": "^8.23.1",
+    "mysql2": "^3.24.4",
     "yauzl": "^3.4.0"
   }
 }
