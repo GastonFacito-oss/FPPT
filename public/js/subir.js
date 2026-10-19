@@ -7,12 +7,13 @@
 (function () {
   'use strict';
 
-  var MAX_MB = window.FPPT_ZIP_MAX_MB || 250;
+  var MAX_MB = 250; // se reemplaza por el valor del servidor (data-zip-max-mb del formulario)
   // Misma lista que src/services/zip.js
   var PROHIBIDAS = ['exe', 'bat', 'cmd', 'msi', 'vbs', 'ps1', 'scr', 'com'];
 
   var form = document.getElementById('form-subir');
   if (!form) return;
+  MAX_MB = Number(form.getAttribute('data-zip-max-mb')) || MAX_MB;
 
   var inputZip = document.getElementById('zip');
   var zona = document.getElementById('zona-zip');

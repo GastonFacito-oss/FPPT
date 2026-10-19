@@ -1,5 +1,6 @@
 // Mapa de direcciones del sitio: qué controlador responde a cada URL.
 const express = require('express');
+const config = require('../config');
 const paginas = require('../controllers/paginasController');
 const auth = require('../controllers/authController');
 const proyectos = require('../controllers/proyectosController');
@@ -13,7 +14,8 @@ const router = express.Router();
 router.get('/', paginas.inicio);
 router.get('/sobre-fppt', paginas.sobre);
 router.get('/ayuda', paginas.ayuda);
-router.get('/componentes', paginas.componentes);
+// Guía del sistema de diseño: solo mientras se desarrolla
+if (!config.produccion) router.get('/componentes', paginas.componentes);
 router.get('/salud', paginas.salud);
 
 // Cuentas

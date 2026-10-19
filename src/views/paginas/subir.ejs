@@ -23,7 +23,7 @@
       <%= hayErrores ? 'Revisá los datos marcados en rojo.' : '' %>
     </div>
 
-    <form class="formulario formulario--ancho" id="form-subir" action="/subir" method="post" enctype="multipart/form-data" novalidate>
+    <form class="formulario formulario--ancho" id="form-subir" action="/subir" method="post" enctype="multipart/form-data" data-zip-max-mb="<%= Number(zipMaxMb) %>" novalidate>
       <%# El token va primero: el servidor lo revisa antes de recibir el archivo %>
       <input type="hidden" name="_csrf" value="<%= csrf %>">
 
@@ -164,7 +164,6 @@
   </div>
 </section>
 
-<script>window.FPPT_ZIP_MAX_MB = <%= Number(zipMaxMb) %>;</script>
 <script src="/js/subir.js"></script>
 
 <%- include('../partials/pie') %>

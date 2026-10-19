@@ -6,6 +6,7 @@ orientación TIC de la **E.T. N°20 D.E. 20 “Carolina Muzilli”**.
 Proyecto Integrador III · 6° 2da.
 
 - Plan de trabajo: [`docs/plan.md`](docs/plan.md)
+- **Publicar en el servidor de la escuela (modo producción):** [`docs/instalacion-servidor.md`](docs/instalacion-servidor.md)
 - Sistema de diseño: [`docs/sistema-de-diseno.md`](docs/sistema-de-diseno.md) (y en vivo en `/componentes`)
 
 ## Tecnologías
@@ -91,10 +92,22 @@ Los proyectos de `seed.sql` son **ficticios**, solo para probar. Se borran antes
 Los ZIP que se suben se guardan en `storage/zips` (no se suben a GitHub). `npm run db:crear` borra la
 base **y** esos ZIP.
 
+## Comandos
+
+| Comando | Para qué |
+|---|---|
+| `npm run dev` | Arranca el sitio mientras se programa (se reinicia solo) |
+| `npm start` | Arranca el sitio en modo normal |
+| `npm run db:crear` | Desarrollo: borra la base y la crea con datos de prueba. Producción: la crea vacía y nunca borra |
+| `npm run crear-admin` | Crea la cuenta de administrador (o convierte una cuenta existente en admin) |
+| `npm run cambiar-rol -- email rol` | Cambia el rol de una cuenta: `estudiante`, `docente` o `admin` |
+| `npm run generar-secreto` | Genera una clave al azar para `SESION_SECRETO` |
+
 ## Estructura de carpetas
 
 ```
-database/          schema.sql (tablas), seed.sql (datos de prueba), crear-base.js
+database/          schema.sql (tablas), datos-base.sql (tecnologías), seed.sql (datos de prueba), crear-base.js
+scripts/           comandos de administración (crear-admin, cambiar-rol)
 docs/              plan y sistema de diseño
 public/            archivos que ve el navegador: css/, js/, img/
 src/

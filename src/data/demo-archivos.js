@@ -6,6 +6,8 @@
 //   carpeta: { nombre, hijos: [...] }
 //   archivo: { nombre, tamanio }   (tamaño en bytes)
 
+const config = require('../config');
+
 const carpeta = (nombre, hijos) => ({ nombre, hijos });
 const archivo = (nombre, tamanio) => ({ nombre, tamanio });
 
@@ -72,7 +74,9 @@ const demos = {
   },
 };
 
+// En producción no hay ejemplos: los proyectos 1 y 2 son proyectos reales
 function obtenerDemo(proyectoId) {
+  if (config.produccion) return null;
   return demos[proyectoId] || null;
 }
 

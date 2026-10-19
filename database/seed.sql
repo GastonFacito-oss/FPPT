@@ -1,6 +1,7 @@
 -- =========================================================
 -- FPPT · Datos de prueba
--- Proyectos FICTICIOS para probar el sitio. Borrar antes de la entrega.
+-- Cuentas y proyectos FICTICIOS para probar el sitio.
+-- Solo se cargan en modo desarrollo: en producción (NODE_ENV=production) nunca.
 -- Cuenta admin de prueba:  admin@ejemplo.edu.ar  /  CambiarEsta2026
 -- =========================================================
 USE fppt;
@@ -9,9 +10,6 @@ INSERT INTO usuarios (nombre, email, dni, password_hash, rol) VALUES
   ('Equipo FPPT',        'admin@ejemplo.edu.ar',      '00000001', '$2b$10$ue9hkXnO5Ki6SU8FHpj1FOyJh2gy1RN2nD.yEwylbvPnffI4QssCu', 'admin'),
   ('Docente de Prueba',  'docente@ejemplo.edu.ar',    '00000002', '$2b$10$ue9hkXnO5Ki6SU8FHpj1FOyJh2gy1RN2nD.yEwylbvPnffI4QssCu', 'docente'),
   ('Estudiante de Prueba','estudiante@ejemplo.edu.ar','00000003', '$2b$10$ue9hkXnO5Ki6SU8FHpj1FOyJh2gy1RN2nD.yEwylbvPnffI4QssCu', 'estudiante');
-
-INSERT INTO tecnologias (nombre) VALUES
-  ('HTML'), ('CSS'), ('JavaScript'), ('Node.js'), ('Java'), ('Python'), ('MySQL'), ('C#'), ('Arduino'), ('PHP');
 
 -- "creado" tiene fechas del pasado para que los proyectos subidos desde el sitio aparezcan primero.
 INSERT INTO proyectos

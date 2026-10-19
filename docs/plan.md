@@ -75,7 +75,7 @@ Ver `database/schema.sql`.
 | **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | 🟡 Alta, muro, lista con páginas, detalle y propietarios ✅ (adelantado). Falta: editar y eliminar |
 | **4** | 21/10 – 27/10 | Subida del ZIP (250 MB) con barra de progreso, árbol de carpetas, reemplazo y descarga | 🟡 Subida, árbol y descarga ✅ (adelantado). Falta: reemplazar el ZIP |
 | **5** | 28/10 – 3/11 | Panel de admin y docentes (aprobar, destacar, usuarios), búsqueda y filtros, Mis proyectos | 🟡 Búsqueda y filtros ✅ (adelantado). Falta: panel y Mis proyectos |
-| **6** | 4/11 – 10/11 | Pruebas con 5 usuarios, correcciones, manual de usuario, instalación en el servidor y backup | Pendiente |
+| **6** | 4/11 – 10/11 | Pruebas con 5 usuarios, correcciones, manual de usuario, instalación en el servidor y backup | 🟡 Modo producción y guía de instalación ✅ (adelantado). Falta: instalarlo, pruebas con usuarios y manual |
 | **Entrega** | **11/11** | Versión `v1.0` | |
 
 ### Detalle técnico por sprint
@@ -123,8 +123,10 @@ Ver `database/schema.sql`.
 **Sprint 6 · Cierre**
 - Pruebas de uso con 5 personas externas al equipo (las elige el equipo).
 - Manual de usuario dentro del sitio.
-- Instalación en el servidor de la escuela: Node.js como servicio (`pm2` en Linux o `NSSM` en Windows), MySQL de XAMPP, backup de la base y de `storage/zips`.
-- Borrar los datos de prueba y crear la cuenta admin real.
+- ✅ Modo producción (`NODE_ENV=production`): base sin datos de prueba, `db:crear` que nunca borra,
+  `crear-admin` y `cambiar-rol`, controles de configuración al arrancar, cabeceras de seguridad, HTTPS
+  detrás de Apache/nginx (`PROXY_CONFIABLE`, `HOST=127.0.0.1`). Guía: `docs/instalacion-servidor.md`.
+- Falta: instalarlo en el servidor de la escuela con el Departamento TICS (servicio, HTTPS, firewall, backups).
 
 ## 6. Roles del equipo
 

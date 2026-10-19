@@ -15,7 +15,8 @@ const sesion = session({
   cookie: {
     httpOnly: true,              // JavaScript del navegador no puede leer la cookie
     sameSite: 'lax',
-    secure: config.produccion && process.env.HTTPS === '1',
+    // En producción la cookie solo viaja por HTTPS ("auto" = si la visita llegó por HTTPS)
+    secure: config.produccion ? 'auto' : false,
     maxAge: 8 * 60 * 60 * 1000,  // 8 horas
   },
 });
