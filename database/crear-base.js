@@ -58,8 +58,22 @@ async function main() {
   }
 }
 
+// Qué hacer según el error que devuelve MySQL
+const AYUDA = {
+  ECONNREFUSED: 'MySQL está apagado: en el panel de XAMPP, darle "Start" a MySQL (tiene que quedar en verde).',
+  ENOTFOUND: 'No existe la computadora de DB_HOST. En el .env tiene que decir DB_HOST=localhost.',
+  ETIMEDOUT: 'MySQL no responde. Revisá que esté encendido y que DB_HOST y DB_PUERTO del .env sean correctos.',
+  ER_ACCESS_DENIED_ERROR: 'Usuario o contraseña de MySQL incorrectos: revisá DB_USUARIO y DB_CLAVE en el archivo .env ' +
+    '(en XAMPP recién instalado: DB_USUARIO=root y DB_CLAVE vacío; si le pusiste contraseña a root, va en DB_CLAVE).',
+  ER_DBACCESS_DENIED_ERROR: 'El usuario de MySQL no tiene permiso sobre la base "fppt". Ejecutá como root: ' +
+    "GRANT ALL PRIVILEGES ON fppt.* TO 'fppt'@'localhost';",
+  ER_SPECIFIC_ACCESS_DENIED_ERROR: 'El usuario de MySQL no tiene permisos suficientes. Probá con root o dale permisos sobre fppt.*.',
+  ER_NOT_SUPPORTED_AUTH_MODE: 'MySQL usa un método de contraseña viejo. Actualizá XAMPP o cambiá la contraseña del usuario.',
+};
+
 main().catch((err) => {
-  console.error('No se pudo crear la base:', err.message);
-  console.error('¿Está MySQL encendido? ¿Los datos de la base en el archivo .env son correctos?');
+  console.error('✖ No se pudo crear la base:', err.message);
+  if (err.code) console.error('  Código del error:', err.code);
+  console.error('  ' + (AYUDA[err.code] || '¿Está MySQL encendido? ¿Los datos de la base en el archivo .env son correctos?'));
   process.exitCode = 1;
 });
