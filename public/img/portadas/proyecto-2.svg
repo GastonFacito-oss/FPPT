@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 225" width="400" height="225" role="img" aria-label="Portada Proyecto 2">
+  <defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#123c5c"/><stop offset="1" stop-color="#326080"/></linearGradient></defs>
+  <rect width="400" height="225" fill="url(#g2)"/>
+  <circle cx="350" cy="30" r="90" fill="#fff" opacity=".07"/>
+  <circle cx="40" cy="210" r="70" fill="#fff" opacity=".06"/>
+  <rect x="115" y="62" width="170" height="104" rx="12" fill="#fff" opacity=".95"/>
+  <rect x="115" y="62" width="170" height="24" rx="12" fill="#e8871e"/>
+  <rect x="115" y="74" width="170" height="12" fill="#e8871e"/>
+  <circle cx="131" cy="74" r="4" fill="#fff"/><circle cx="145" cy="74" r="4" fill="#fff"/><circle cx="159" cy="74" r="4" fill="#fff"/>
+  <rect x="131" y="100" width="70" height="10" rx="5" fill="#326080"/>
+  <rect x="131" y="118" width="120" height="8" rx="4" fill="#b5d2e6"/>
+  <rect x="131" y="134" width="96" height="8" rx="4" fill="#b5d2e6"/>
+</svg>
