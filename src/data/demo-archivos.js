@@ -1,4 +1,4 @@
-// DATOS DE DEMOSTRACIÓN (Sprint 1).
+// DATOS DE DEMOSTRACIÓN (solo en modo desarrollo).
 // Simulan el ZIP de los dos primeros proyectos para mostrar cómo se verá el detalle.
 // En el Sprint 4 esta información va a salir de la tabla "archivos_zip".
 //

@@ -9,8 +9,8 @@ funcionando, está en **`/componentes`** (con el servidor encendido: <http://loc
 y consultar proyectos de años anteriores como guía.
 
 **Flujo principal:**
-Inicio → Ingresar / Crear cuenta → Subir proyecto (datos + ZIP) → Mis proyectos (pendiente) →
-un docente lo aprueba → aparece en Proyectos y en el Inicio.
+Inicio → Ingresar / Crear cuenta → Subir proyecto (datos + ZIP) → el proyecto se publica al instante →
+aparece primero en el Inicio y en Proyectos.
 
 **Arquitectura de la información:**
 

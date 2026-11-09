@@ -62,7 +62,7 @@ Ver `database/schema.sql`.
 3. **Detalle del proyecto**: datos, integrantes, tecnologías, árbol de archivos y "Descargar ZIP".
 4. **Subir / editar proyecto**: formulario + ZIP con barra de progreso + propietarios.
 5. **Ingresar** y **Crear cuenta**.
-6. **Mis proyectos**: estado de cada proyecto (pendiente, aprobado o rechazado).
+6. **Mis proyectos** (pendiente): los proyectos de cada usuario.
 7. **Panel de administración**: aprobar, rechazar, destacar y eliminar proyectos; gestionar usuarios y roles.
 8. **Sobre FPPT** y **Ayuda** (preguntas frecuentes y contacto).
 
@@ -70,12 +70,12 @@ Ver `database/schema.sql`.
 
 | Sprint | Fechas | Objetivo | Estado |
 |---|---|---|---|
-| **1** | 30/9 – 6/10 | Base del proyecto: repositorio, servidor Express, base de datos, sistema de diseño, plantilla común, Inicio, Sobre FPPT y Ayuda | ✅ Base lista |
-| **2** | 7/10 – 13/10 | Registro (Gmail escolar + DNI), login, logout, sesiones y permisos por rol | ✅ Listo (adelantado). Falta: dominio del Gmail escolar |
-| **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | 🟡 Alta, muro, lista con páginas, detalle y propietarios ✅ (adelantado). Falta: editar y eliminar |
-| **4** | 21/10 – 27/10 | Subida del ZIP (250 MB) con barra de progreso, árbol de carpetas, reemplazo y descarga | 🟡 Subida, árbol y descarga ✅ (adelantado). Falta: reemplazar el ZIP |
-| **5** | 28/10 – 3/11 | Panel de admin y docentes (aprobar, destacar, usuarios), búsqueda y filtros, Mis proyectos | 🟡 Búsqueda y filtros ✅ (adelantado). Falta: panel y Mis proyectos |
-| **6** | 4/11 – 10/11 | Pruebas con 5 usuarios, correcciones, manual de usuario, instalación en el servidor y backup | 🟡 Modo producción y guía de instalación ✅ (adelantado). Falta: instalarlo, pruebas con usuarios y manual |
+| **1** | 30/9 – 6/10 | Base del proyecto: repositorio, servidor Express, base de datos, sistema de diseño, plantilla común, Inicio, Sobre FPPT y Ayuda | ✅ Hecho |
+| **2** | 7/10 – 13/10 | Registro (Gmail escolar + DNI), login, logout, sesiones y permisos por rol | ✅ Hecho. Los roles existen pero todavía no cambian lo que se puede hacer. Falta: dominio del Gmail escolar |
+| **3** | 14/10 – 20/10 | Muro de proyectos, detalle, formulario de alta/edición y propietarios | 🟡 Alta, muro, lista con páginas, detalle y propietarios ✅. Falta: editar y eliminar |
+| **4** | 21/10 – 27/10 | Subida del ZIP (250 MB) con barra de progreso, árbol de carpetas, reemplazo y descarga | 🟡 Subida, árbol y descarga ✅. Falta: reemplazar el ZIP |
+| **5** | 28/10 – 3/11 | Panel de admin y docentes (aprobar, destacar, usuarios), búsqueda y filtros, Mis proyectos | 🟡 Búsqueda y filtros ✅. Falta: panel y Mis proyectos |
+| **6** | 4/11 – 10/11 | Pruebas con 5 usuarios, correcciones, manual de usuario, instalación en el servidor y backup | 🟡 Modo producción, guía de instalación y manual de usuario ✅. Falta: instalarlo y pruebas con usuarios |
 | **Entrega** | **11/11** | Versión `v1.0` | |
 
 ### Detalle técnico por sprint
@@ -121,6 +121,7 @@ Ver `database/schema.sql`.
 - Pendiente (opcional): filtros por turno y estado.
 
 **Sprint 6 · Cierre**
+- ✅ Manual de usuario: `docs/Manual_de_Usuario_FPPT.docx` (faltan las capturas y tres datos marcados [VERIFICAR]).
 - Pruebas de uso con 5 personas externas al equipo (las elige el equipo).
 - Manual de usuario dentro del sitio.
 - ✅ Modo producción (`NODE_ENV=production`): base sin datos de prueba, `db:crear` que nunca borra,
@@ -154,4 +155,4 @@ Ver `database/schema.sql`.
 - [ ] Si cada proyecto lleva foto de portada propia o se usa la portada genérica según la materia (hoy: genérica).
 - [ ] Correos reales de contacto (estudiantes, docentes, directivos, Departamento TICS).
 - [ ] Links reales de las redes sociales.
-- [ ] Apellido de Lucas tal como debe figurar en el sitio.
+- [ ] Apellido de Lucas tal como debe figurar en el sitio y en el manual (Bonavera o Bonnavera).

@@ -5,6 +5,7 @@ orientación TIC de la **E.T. N°20 D.E. 20 “Carolina Muzilli”**.
 
 Proyecto Integrador III · 6° 2da.
 
+- **Manual de usuario:** [`docs/Manual_de_Usuario_FPPT.docx`](docs/Manual_de_Usuario_FPPT.docx)
 - Plan de trabajo: [`docs/plan.md`](docs/plan.md)
 - **Publicar en el servidor de la escuela (modo producción):** [`docs/instalacion-servidor.md`](docs/instalacion-servidor.md)
 - Sistema de diseño: [`docs/sistema-de-diseno.md`](docs/sistema-de-diseno.md) (y en vivo en `/componentes`)
@@ -40,8 +41,6 @@ En XAMPP el usuario de MySQL es `root` sin contraseña, así que no hace falta c
 
 - `EMAIL_DOMINIO`: dominio del Gmail escolar (por ejemplo `et20.edu.ar`). Vacío = acepta cualquier email (solo para probar).
 - `SESION_SECRETO`: en el servidor de la escuela, cambiarlo por una frase larga al azar.
-
-> Si ya habías creado la base antes, volvé a ejecutar `npm run db:crear`: se agregó la tabla `sesiones`.
 
 ### 4. Crear la base de datos
 
